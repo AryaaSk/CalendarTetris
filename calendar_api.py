@@ -1,4 +1,5 @@
 import datetime
+from mimetypes import init
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -40,7 +41,7 @@ def get_service() -> Resource:
     return build("calendar", "v3", credentials=creds)
 
 
-service = get_service()
+service = None
 
 
 def init_new_calendar(summary="Tetris Calendar", time_zone="Europe/London") -> None:
@@ -50,6 +51,12 @@ def init_new_calendar(summary="Tetris Calendar", time_zone="Europe/London") -> N
     }
     calendar = service.calendars().insert(body=body).execute()
     return calendar["id"]
+
+
+def init_gui() -> None:
+    global service
+    service = get_service()
+    init_new_calendar()
 
 
 def create_event(calendar_id: str, name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> None:
