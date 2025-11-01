@@ -1,10 +1,10 @@
 import datetime
-from mimetypes import init
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build, Resource
 from googleapiclient.errors import HttpError
+from googleapiclient.http import BatchHttpRequest
 import os
 
 # This module requires credentials.json to be in the same directory.
@@ -65,7 +65,9 @@ def init_gui() -> None:
     global service
     global calendar_id
     service = get_service()
-    calendar_id = init_new_calendar()
+    #calendar_id = init_new_calendar()
+    calendar_id = "8973e281e7d39af544b067e47c56a3f270ee83d9b98222a883179df552795499@group.calendar.google.com"
+    print(f"Calendar ID: {calendar_id}")
     init_joystick()
 
 
@@ -166,19 +168,53 @@ def set_grid(grid: list[list[str]]) -> list[str]:
 
 def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[str], new_grid: list[list[str]]) -> None:
     """
-    Updates the grid in the calendar for the given date.
+    Updates the grid in the calendar for the given date using batch requests.
 
     Args:
         previous_grid: 24 x 10 grid of strings
         previous_grid_event_ids: List of event IDs in the previous grid
         new_grid: 24 x 10 grid of strings
-        date: Date to create the events for
     """
+    # Create a callback function for batch responses
+    batch_results = []
+    
+    def BatchCallback(request_id, response, exception):
+        if exception is not None:
+            batch_results.append(("error", request_id, exception))
+        else:
+            batch_results.append(("success", request_id, response))
+    
+    # Create batch request
+    batch = service.new_batch_http_request(callback=BatchCallback)
+    
+    # Collect all events that need updating
+    events_to_fetch = {}
+    cells_to_update = []
+    
     for y in range(24):
         for x in range(10):
-            print(f"Checking {y},{x}: {previous_grid[y][x]} != {new_grid[y][x]}")
             if previous_grid[y][x] != new_grid[y][x]:
-                edit_event(calendar_id, previous_grid_event_ids[y * 10 + x], new_grid[y][x])
+                event_id = previous_grid_event_ids[y * 10 + x]
+                cells_to_update.append((y, x, event_id, new_grid[y][x]))
+                # Only fetch each unique event once
+                if event_id not in events_to_fetch:
+                    events_to_fetch[event_id] = None
+    
+    # Fetch all events first (can't batch get requests efficiently, so do individually)
+    for event_id in events_to_fetch.keys():
+        events_to_fetch[event_id] = service.events().get(calendarId=calendar_id, eventId=event_id).execute()
+    
+    # Add all update requests to batch
+    for y, x, event_id, new_color in cells_to_update:
+        event = events_to_fetch[event_id].copy()
+        event["colorId"] = COLOR_MAP[new_color]
+        batch.add(service.events().update(calendarId=calendar_id, eventId=event_id, body=event))
+    
+    # Execute batch request
+    if len(cells_to_update) > 0:
+        batch.execute()
+    
+    print(f"Grid updated: {len(cells_to_update)} cells changed")
 
 
 def check_joystick() -> int:
@@ -225,3 +261,7 @@ def check_joystick() -> int:
             service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 4
     return 0
+
+init_gui()
+#event_ids = set_grid([['.'] * 10 for _ in range(24)])
+#print(f"Event IDs: {event_ids}")
