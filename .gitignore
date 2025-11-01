@@ -1,2 +1,5 @@
 #python
 venv
+
+credentials.json
+token.json

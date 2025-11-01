@@ -169,3 +169,5 @@ def update_grid(calendar_id: str, previous_grid: list[list[str]], previous_grid_
             print(f"Checking {y},{x}: {previous_grid[y][x]} != {new_grid[y][x]}")
             if previous_grid[y][x] != new_grid[y][x]:
                 edit_event(calendar_id, previous_grid_event_ids[y * 10 + x], new_grid[y][x])
+
+create_event('primary', 'Test', 'C', datetime.datetime.now(), datetime.datetime.now() + datetime.timedelta(hours=1))
