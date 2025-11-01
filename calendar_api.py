@@ -158,7 +158,7 @@ def set_grid(grid: list[list[str]]) -> list[str]:
     event_ids = []
     for y in range(24):
         for x in range(10):
-            event = create_event(calendar_id, chr(ord('A') + x), grid[y][x], date + datetime.timedelta(hours=y), date + datetime.timedelta(hours=y+1))
+            event = create_event(chr(ord('A') + x), grid[y][x], date + datetime.timedelta(hours=y), date + datetime.timedelta(hours=y+1))
             event_ids.append(event["id"])
     return event_ids
 
