@@ -55,6 +55,7 @@ def init_new_calendar(summary="Tetris Calendar", time_zone="Europe/London") -> N
 
 def init_gui() -> None:
     global service
+    global calendar_id
     service = get_service()
     calendar_id = init_new_calendar()
 
