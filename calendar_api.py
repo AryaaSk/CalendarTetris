@@ -1,4 +1,5 @@
 import datetime
+from mimetypes import init
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -57,7 +58,7 @@ def init_joystick() -> None:
     center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     center_start_datetime += datetime.timedelta(days=2)
     center_start_datetime += datetime.timedelta(hours=10)
-    create_event("Joystick", "C", datetime.datetime(2025, 1, 1, 12, 0, 0), datetime.datetime(2025, 1, 1, 13, 0, 0))
+    create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
 
 
 def init_gui() -> None:
@@ -192,24 +193,35 @@ def check_joystick() -> int:
     center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     center_start_datetime += datetime.timedelta(days=2)
     center_start_datetime += datetime.timedelta(hours=10)
+    
+    # Ensure timezone-aware datetime for API call
+    if center_start_datetime.tzinfo is None:
+        center_start_datetime = center_start_datetime.replace(tzinfo=datetime.timezone.utc)
+
+    time_min = (center_start_datetime - datetime.timedelta(days=1)).isoformat()
+    time_max = (center_start_datetime + datetime.timedelta(days=2)).isoformat()
 
     events = service.events().list(
         calendarId=calendar_id,
-        timeMin=(center_start_datetime - datetime.timedelta(days=1)).isoformat(),
-        timeMax=(center_start_datetime + datetime.timedelta(days=1)).isoformat()
+        timeMin=time_min,
+        timeMax=time_max
     ).execute()
     for event in events["items"]:
         event_start_datetime = datetime.datetime.fromisoformat(event["start"]["dateTime"])
         if event_start_datetime.date() == center_start_datetime.date() - datetime.timedelta(days=1):
             # Left
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 1
         elif event_start_datetime.date() == center_start_datetime.date() + datetime.timedelta(days=1):
             # Right
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 2
         elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime < center_start_datetime:
             # Up
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 3
         elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime > center_start_datetime:
             # Down
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 4
     return 0
