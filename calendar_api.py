@@ -53,11 +53,19 @@ def init_new_calendar(summary="Tetris Calendar", time_zone="Europe/London") -> N
     return calendar["id"]
 
 
+def init_joystick() -> None:
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    center_start_datetime += datetime.timedelta(days=2)
+    center_start_datetime += datetime.timedelta(hours=10)
+    create_event("Joystick", "C", datetime.datetime(2025, 1, 1, 12, 0, 0), datetime.datetime(2025, 1, 1, 13, 0, 0))
+
+
 def init_gui() -> None:
     global service
     global calendar_id
     service = get_service()
     calendar_id = init_new_calendar()
+    init_joystick()
 
 
 def create_event(name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> None:
@@ -133,7 +141,7 @@ def edit_event(event_id: str, color: str) -> None:
     service.events().update(calendarId=calendar_id, eventId=event_id, body=event).execute()
 
 
-def set_grid(grid: list[list[str]], date: datetime.datetime) -> list[str]:
+def set_grid(grid: list[list[str]]) -> list[str]:
     """
     Sets the grid in the calendar for the given date.
     Returns a list of event IDs.
@@ -142,11 +150,11 @@ def set_grid(grid: list[list[str]], date: datetime.datetime) -> list[str]:
         calendar_id: Calendar ID to create the events in
         grid: 24 x 10 grid of strings
         names: 24 x 10 grid of strings
-        date: Date to create the events for
 
     Returns:
         List of event IDs
     """
+    date = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     event_ids = []
     for y in range(24):
         for x in range(10):
@@ -171,4 +179,37 @@ def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[st
             if previous_grid[y][x] != new_grid[y][x]:
                 edit_event(calendar_id, previous_grid_event_ids[y * 10 + x], new_grid[y][x])
 
-create_event('primary', 'Test', 'C', datetime.datetime.now(), datetime.datetime.now() + datetime.timedelta(hours=1))
+
+def check_joystick() -> int:
+    """
+    Checks the joystick and returns the following:
+    0: No change
+    1: Left
+    2: Right
+    3: Up
+    4: Down
+    """
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    center_start_datetime += datetime.timedelta(days=2)
+    center_start_datetime += datetime.timedelta(hours=10)
+
+    events = service.events().list(
+        calendarId=calendar_id,
+        timeMin=(center_start_datetime - datetime.timedelta(days=1)).isoformat(),
+        timeMax=(center_start_datetime + datetime.timedelta(days=1)).isoformat()
+    ).execute()
+    for event in events["items"]:
+        event_start_datetime = datetime.datetime.fromisoformat(event["start"]["dateTime"])
+        if event_start_datetime.date() == center_start_datetime.date() - datetime.timedelta(days=1):
+            # Left
+            return 1
+        elif event_start_datetime.date() == center_start_datetime.date() + datetime.timedelta(days=1):
+            # Right
+            return 2
+        elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime < center_start_datetime:
+            # Up
+            return 3
+        elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime > center_start_datetime:
+            # Down
+            return 4
+    return 0
