@@ -1,6 +1,9 @@
 import random
 import time
 import threading
+import sys
+import os
+
 class Tetromino:
     """Represents a tetris piece with its different rotations"""
     
@@ -88,7 +91,6 @@ class Tetris:
         self.score = 0
         self.linesCleared = 0
         self.gameOver = False
-        self.gameRunning = False
         self.SpawnNewPiece()
     
     def SpawnNewPiece(self):
@@ -243,16 +245,15 @@ class Tetris:
     
     def tick_loop(self):
         """Runs the game tick every second, independent of input"""
-        while self.gameRunning and not self.gameOver:
+        while not self.gameOver:
             time.sleep(1)  # tick every 1 second
             self.Tick()
             self.Render()
 
 
+
 def main():
     """Main game loop"""
-    import sys
-    import os
 
     if os.name == 'nt':
         import msvcrt
@@ -280,35 +281,9 @@ def main():
                 termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
             return ch
 
-    # Example usage:
-    print("Press any key (q to quit):")
-    while True:
-        c = GetChar()
-        print(f"You pressed: {c}")
-        if c.lower() == 'q':
-            break
-
     
     game = Tetris()
-    
-    print("=" * 50)
-    print("TETRIS")
-    print("=" * 50)
-    print("\nControls:")
-    print("  a/d - Move left/right")
-    print("  s - Move down faster")
-    print("  w - Rotate")
-    print("  q - Quit")
-    print("\nColors:")
-    print("  C = Cyan (I-piece), Y = Yellow (O-piece)")
-    print("  M = Magenta (T-piece), G = Green (S-piece)")
-    print("  R = Red (Z-piece), B = Blue (J-piece)")
-    print("  O = Orange (L-piece), . = Empty")
-    print("\nPress Enter to start...")
-    input()
 
-
-    game.gameRunning = True
     tick_thread = threading.Thread(target= game.tick_loop, daemon=True)
     tick_thread.start()
     
@@ -329,11 +304,7 @@ def main():
         elif move == 'w':
             game.TryRotate()
 
-        # Render after each input too
-        game.Render()
-
     # Stop ticking thread
-    game.gameRunning = False
     tick_thread.join(timeout=1)
 
     print("\nFinal game state:")
