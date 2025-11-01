@@ -11,6 +11,10 @@ import os
 
 SCOPES = ["https://www.googleapis.com/auth/calendar.app.created"]
 
+# Browser control variables
+_browser_context = None
+_page = None
+
 # Map color codes to Google Calendar color IDs
 COLOR_MAP = {
     'C': '7',   # Cyan
@@ -65,10 +69,10 @@ def init_gui() -> None:
     global service
     global calendar_id
     service = get_service()
-    #calendar_id = init_new_calendar()
-    calendar_id = "8973e281e7d39af544b067e47c56a3f270ee83d9b98222a883179df552795499@group.calendar.google.com"
+    calendar_id = init_new_calendar()
     print(f"Calendar ID: {calendar_id}")
     init_joystick()
+    InitBrowser()
 
 
 def create_event(name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> None:
@@ -213,6 +217,8 @@ def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[st
     # Execute batch request
     if len(cells_to_update) > 0:
         batch.execute()
+        # Refresh browser to show updates immediately
+        #RefreshBrowser()
     
     print(f"Grid updated: {len(cells_to_update)} cells changed")
 
@@ -261,6 +267,42 @@ def check_joystick() -> int:
             service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 4
     return 0
+
+
+def InitBrowser():
+    """
+    Connects to an existing Chrome browser that was launched with remote debugging.
+    Chrome must be started with: chrome --remote-debugging-port=9222
+    """
+    global _browser_context, _page
+    try:
+        from playwright.sync_api import sync_playwright
+        
+        playwright = sync_playwright().start()
+        
+        # Connect to existing browser on port 9222
+        _browser_context = playwright.chromium.connect_over_cdp("http://localhost:9222")
+        pages = _browser_context.pages
+        _page = pages[0] if pages else None
+        
+        print("Connected to existing Chrome browser")
+    except ImportError:
+        print("Warning: Playwright not installed. Browser refresh disabled.")
+    except Exception as e:
+        print(f"Warning: Could not connect to browser: {e}")
+
+
+def RefreshBrowser():
+    """
+    Refreshes the currently open page in the browser.
+    """
+    global _page
+    if _page:
+        try:
+            _page.reload(wait_until="load")
+        except Exception as e:
+            print(f"Warning: Could not refresh browser: {e}")
+
 
 init_gui()
 #event_ids = set_grid([['.'] * 10 for _ in range(24)])
