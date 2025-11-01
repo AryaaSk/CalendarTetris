@@ -1,5 +1,4 @@
 import datetime
-from mimetypes import init
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -42,6 +41,7 @@ def get_service() -> Resource:
 
 
 service = None
+calendar_id = None
 
 
 def init_new_calendar(summary="Tetris Calendar", time_zone="Europe/London") -> None:
@@ -55,11 +55,12 @@ def init_new_calendar(summary="Tetris Calendar", time_zone="Europe/London") -> N
 
 def init_gui() -> None:
     global service
+    global calendar_id
     service = get_service()
-    init_new_calendar()
+    calendar_id = init_new_calendar()
 
 
-def create_event(calendar_id: str, name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> None:
+def create_event(name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> None:
     """
     Creates a Google Calendar event with the specified color, start, and end times.
     
@@ -123,7 +124,7 @@ def create_event(calendar_id: str, name: str, color: str, start: datetime.dateti
         raise
 
 
-def edit_event(calendar_id: str, event_id: str, color: str) -> None:
+def edit_event(event_id: str, color: str) -> None:
     """
     Edits the event with the given ID to the given color.
     """
@@ -132,7 +133,7 @@ def edit_event(calendar_id: str, event_id: str, color: str) -> None:
     service.events().update(calendarId=calendar_id, eventId=event_id, body=event).execute()
 
 
-def set_grid(calendar_id: str, grid: list[list[str]], date: datetime.datetime) -> list[str]:
+def set_grid(grid: list[list[str]], date: datetime.datetime) -> list[str]:
     """
     Sets the grid in the calendar for the given date.
     Returns a list of event IDs.
@@ -154,7 +155,7 @@ def set_grid(calendar_id: str, grid: list[list[str]], date: datetime.datetime) -
     return event_ids
 
 
-def update_grid(calendar_id: str, previous_grid: list[list[str]], previous_grid_event_ids: list[str], new_grid: list[list[str]]) -> None:
+def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[str], new_grid: list[list[str]]) -> None:
     """
     Updates the grid in the calendar for the given date.
 
