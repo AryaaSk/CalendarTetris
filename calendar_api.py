@@ -35,6 +35,9 @@ COLOR_MAP = {
     '.': '8'    # Grey
 }
 
+# Reverse map: Google Calendar color IDs to color codes
+REVERSE_COLOR_MAP = {v: k for k, v in COLOR_MAP.items()}
+
 def get_service() -> Resource:
     """
     initialises the service object for the Google Calendar API.
@@ -151,7 +154,7 @@ def init_joystick() -> None:
         file.write(f"Joystick start datetime: {joystick_start_datetime}\n")
 
 
-def init_gui(newGame) -> None:
+def init_gui(newGame, game: str) -> None:
     global service
     global calendar_id
     global event_ids
@@ -186,6 +189,8 @@ def init_gui(newGame) -> None:
 
         with open("event_ids.txt", "r") as file:
             event_ids = file.read().strip().split("\n")
+        previous_grid = get_grid()
+        update_grid(previous_grid, [['.'] * 10 for _ in range(24)])
 
         with open("score_event_id.txt", "r") as file:
             score_event_id = file.read().strip()
@@ -203,6 +208,12 @@ def init_gui(newGame) -> None:
 
     #print(f"Calendar ID: {calendar_id}")
     #print(f"Event IDs: {event_ids}")
+    if (game == "tetris"):
+        init_joystick()
+        InitBrowser()
+    elif (game == "pong"):
+        init_joystick_pong(3)
+        InitBrowser()
 
     init_joystick()
     init_emotes()
@@ -304,13 +315,68 @@ def set_grid(grid: list[list[str]]) -> list[str]:
     return event_ids
 
 
-def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[str], new_grid: list[list[str]]) -> None:
+def get_grid() -> list[list[str]]:
+    """
+    Gets the grid from the calendar based on event_ids using batch requests.
+    Returns a 24 x 10 grid of color codes.
+
+    Returns:
+        24 x 10 grid of strings (color codes)
+    """
+    # Create a mapping from event_id to (y, x) position
+    event_id_to_position = {}
+    for y in range(24):
+        for x in range(10):
+            event_id = event_ids[y * 10 + x]
+            event_id_to_position[event_id] = (y, x)
+    
+    # Create a callback function for batch responses
+    batch_results = {}
+    
+    def BatchCallback(request_id, response, exception):
+        if exception is not None:
+            batch_results[request_id] = ("error", exception, None)
+        else:
+            event_id = response.get("id")
+            batch_results[request_id] = ("success", response, event_id)
+    
+    # Create batch request
+    batch = service.new_batch_http_request(callback=BatchCallback)
+    
+    # Add all get requests to batch
+    for y in range(24):
+        for x in range(10):
+            event_id = event_ids[y * 10 + x]
+            request = service.events().get(calendarId=calendar_id, eventId=event_id)
+            batch.add(request)
+    
+    # Execute batch request
+    batch.execute()
+    
+    # Build grid from batch results
+    grid = [['.'] * 10 for _ in range(24)]
+    
+    for request_id, (status, result, event_id) in batch_results.items():
+        if event_id and event_id in event_id_to_position:
+            y, x = event_id_to_position[event_id]
+            if status == "success":
+                event = result
+                color_id = event.get("colorId", "8")  # Default to grey if no colorId
+                color_code = REVERSE_COLOR_MAP.get(color_id, ".")  # Default to '.' if unknown colorId
+                grid[y][x] = color_code
+            else:
+                # On error, leave as default '.' (grey)
+                grid[y][x] = '.'
+    
+    return grid
+
+
+def update_grid(previous_grid: list[list[str]], new_grid: list[list[str]]) -> None:
     """
     Updates the grid in the calendar for the given date using batch requests.   
 
     Args:
         previous_grid: 24 x 10 grid of strings
-        previous_grid_event_ids: List of event IDs in the previous grid
         new_grid: 24 x 10 grid of strings
     """
     # Create a callback function for batch responses
@@ -332,7 +398,7 @@ def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[st
     for y in range(24):
         for x in range(10):
             if previous_grid[y][x] != new_grid[y][x]:
-                event_id = previous_grid_event_ids[y * 10 + x]
+                event_id = event_ids[y * 10 + x]
                 cells_to_update.append((y, x, event_id, new_grid[y][x]))
                 # Only fetch each unique event once
                 if event_id not in events_to_fetch:
@@ -364,6 +430,71 @@ def update_score(score: int) -> None:
     event["summary"] = f"Score: {score}"
     service.events().update(calendarId=calendar_id, eventId=score_event_id, body=event).execute()
     RefreshBrowser()
+
+
+def check_joystick_pong() -> int:
+    """
+    Checks the joystick and returns the following:
+    0: No change
+    1: Left
+    2: Right
+    3: Up
+    4: Down
+    """
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    center_start_datetime += datetime.timedelta(days=2)
+    center_start_datetime += datetime.timedelta(hours=3)
+    centre_start_datetime2 = center_start_datetime + datetime.timedelta(hours = 17)
+    
+    # Ensure timezone-aware datetime for API call
+    if center_start_datetime.tzinfo is None:
+        center_start_datetime = center_start_datetime.replace(tzinfo=datetime.timezone.utc)
+
+    if centre_start_datetime2.tzinfo is None:
+        centre_start_datetime2 = centre_start_datetime2.replace(tzinfo=datetime.timezone.utc)
+
+    time_min = (center_start_datetime - datetime.timedelta(days=1)).isoformat()
+    time_max = (center_start_datetime + datetime.timedelta(days=2)).isoformat()
+
+    
+    events = service.events().list(
+        calendarId=calendar_id,
+        timeMin=time_min,
+        timeMax=time_max
+    ).execute()
+    for event in events["items"]:
+        event_start_datetime = datetime.datetime.fromisoformat(event["start"]["dateTime"])
+        if event_start_datetime.date() == centre_start_datetime2.date() - datetime.timedelta(days=1) and event_start_datetime.time().hour > 12:
+            # Left
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
+            return 3
+        elif event_start_datetime.date() == center_start_datetime.date() - datetime.timedelta(days=1) and event_start_datetime.time().hour < 12:
+            # Left
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
+            return 1
+        elif event_start_datetime.date() == centre_start_datetime2.date() + datetime.timedelta(days=1) and event_start_datetime.time().hour > 12:
+            # Right
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
+            return 4
+        elif event_start_datetime.date() == center_start_datetime.date() + datetime.timedelta(days=1) and event_start_datetime.time().hour < 12:
+            # Right
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
+            return 2
+    return 0
+
+def init_joystick_pong(cont: int):
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    center_start_datetime += datetime.timedelta(days=2)
+    center_start_datetime += datetime.timedelta(hours=3)
+    if cont == 1:
+        create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+    elif cont == 2:
+        center_start_datetime += datetime.timedelta(hours = 17)
+        create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+    elif cont == 3:
+        create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+        center_start_datetime += datetime.timedelta(hours = 17)
+        create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
 
 
 def check_joystick() -> int:
@@ -466,7 +597,6 @@ def RefreshBrowser():
         except Exception as e:
             print(f"Warning: Could not refresh browser: {e}")
 
-
 def init_emotes():
     global emote_event_id
     
@@ -529,4 +659,4 @@ def check_emotes():
             service.events().delete(calendarId=calendar_id, eventId=emote["id"]).execute()
             init_emotes()
 
-init_gui(False)
+init_gui(True, "tetris")
