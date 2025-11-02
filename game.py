@@ -6,7 +6,7 @@ import time
 
 def main():
     """Main launcher"""
-    init_gui(True, "selection")
+    init_gui(False, "selection")
     while True:
         game = check_selection_joystick()
         if game:

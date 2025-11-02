@@ -514,3 +514,100 @@ Joystick start datetime: 2025-11-04 10:00:00+00:00
 Reset joystick event sl0vfof076riakv3p2a97oga1o back to center
 Reset joystick event sl0vfof076riakv3p2a97oga1o back to center
 Reset joystick event sl0vfof076riakv3p2a97oga1o back to center
+Deleted 2 future events
+Created new joystick event: 92qnc9r6v4kuokcdknv1hjlhm8
+Joystick start datetime: 2025-11-04 10:00:00+00:00
+Reset joystick event 92qnc9r6v4kuokcdknv1hjlhm8 back to center
+Created new joystick event: 63oo17m6631dcg4ph203f18b54
+Joystick start datetime: 2025-11-04 10:00:00+00:00
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Reset joystick event 63oo17m6631dcg4ph203f18b54 back to center
+Created new joystick event: 6i1qrc7elnjthbbe191ncj7me0
+Joystick start datetime: 2025-11-04 10:00:00+00:00
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Reset joystick event 6i1qrc7elnjthbbe191ncj7me0 back to center
+Deleted 3 future events
+Deleted 2 future events
+Created new joystick event: o04d43g1o13q22ji6idkd64tkk
+Joystick start datetime: 2025-11-04 10:00:00+00:00
+Reset joystick event o04d43g1o13q22ji6idkd64tkk back to center

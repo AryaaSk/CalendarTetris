@@ -507,7 +507,7 @@ def check_joystick() -> int:
     if center_start_datetime.tzinfo is None:
         center_start_datetime = center_start_datetime.replace(tzinfo=datetime.timezone.utc)
 
-    time_min = (center_start_datetime - datetime.timedelta(days=1)).isoformat()
+    time_min = (center_start_datetime - datetime.timedelta(days=2)).isoformat()
     time_max = (center_start_datetime + datetime.timedelta(days=2)).isoformat()
 
     events = service.events().list(
@@ -535,14 +535,15 @@ def check_joystick() -> int:
             # Up
             # If this is the joystick event itself, we'll reset it in init_joystick(), don't delete it
             if event["id"] == joystick_event_id:
-                service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
                 return 3
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
+            return 3
         elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime > center_start_datetime and event["id"] != score_event_id and event["id"] != emote_event_id:
             # Down
             # If this is the joystick event itself, we'll reset it in init_joystick(), don't delete it
             if event["id"] == joystick_event_id:
-                service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
                 return 4
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 4
     return 0
 
