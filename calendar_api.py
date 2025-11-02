@@ -178,15 +178,6 @@ def init_gui(newGame, game: str) -> None:
         #write to file
         with open("event_ids.txt", "w") as file:
             file.write("\n".join(event_ids))
-        
-        score_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        score_start_datetime += datetime.timedelta(days=2)
-        score_start_datetime += datetime.timedelta(hours=2)
-        #write to file
-        score_event_id = create_event("Score: 0", "G", score_start_datetime, score_start_datetime + datetime.timedelta(hours=1))
-        print(score_event_id)
-        with open("score_event_id.txt", "w") as file:
-            file.write(score_event_id)
     
     else:
         #read from file
@@ -197,31 +188,29 @@ def init_gui(newGame, game: str) -> None:
             event_ids = file.read().strip().split("\n")
         previous_grid = get_grid()
         update_grid(previous_grid, [['.'] * 10 for _ in range(24)])
-
-        with open("score_event_id.txt", "r") as file:
-            score_event_id = file.read().strip()
-        
-        try:
-            with open("emote_event_id.txt", "r") as file:
-                emote_event_id = file.read().strip()
-                # If file exists but is empty, treat as None
-                if not emote_event_id:
-                    emote_event_id = None
-        except FileNotFoundError:
-            emote_event_id = None
-        
-        update_score(0)
+        delete_all_future_events()
 
     #print(f"Calendar ID: {calendar_id}")
     #print(f"Event IDs: {event_ids}")
     if (game == "tetris"):
+        score_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        score_start_datetime += datetime.timedelta(days=2)
+        score_start_datetime += datetime.timedelta(hours=2)
+        #write to file
+        score_event_id = create_event("Score: 0", "G", score_start_datetime, score_start_datetime + datetime.timedelta(hours=1))
+        print(f"Score event ID: {score_event_id}")
+        update_score(0)
+
         init_joystick()
         init_emotes()
+
     elif (game == "pong"):
         init_joystick_pong(3)
     elif game == "selection":
         init_selection_joystick()
     InitBrowser()
+
+    RefreshBrowser()
 
 
 def create_event(name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> str:
@@ -691,3 +680,83 @@ def check_emotes():
             # delete emote
             service.events().delete(calendarId=calendar_id, eventId=emote["id"]).execute()
             init_emotes()
+
+def delete_all_future_events():
+    """
+    Deletes all events that start after today's date (past midnight of today).
+    Uses batch requests for efficiency.
+    """
+    # Get today's date at midnight
+    today_midnight = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    if today_midnight.tzinfo is None:
+        today_midnight = today_midnight.replace(tzinfo=datetime.timezone.utc)
+    tomorrow_midnight = today_midnight + datetime.timedelta(days=1)
+    
+    # Query all events from today onwards
+    time_min = tomorrow_midnight.isoformat()
+    
+    events_to_delete = []
+    page_token = None
+    
+    while True:
+        try:
+            events_result = service.events().list(
+                calendarId=calendar_id,
+                timeMin=time_min,
+                pageToken=page_token,
+                singleEvents=True,
+                orderBy='startTime'
+            ).execute()
+            
+            events = events_result.get('items', [])
+            
+            for event in events:
+                # Get the start time
+                start = event.get('start', {})
+                event_start_str = start.get('dateTime') or start.get('date')
+                
+                if event_start_str:
+                    # Parse the start time
+                    if 'T' in event_start_str:
+                        # Has time component
+                        event_start = datetime.datetime.fromisoformat(event_start_str.replace('Z', '+00:00'))
+                    else:
+                        # All-day event - treat as starting at midnight
+                        event_start = datetime.datetime.fromisoformat(event_start_str)
+                        if event_start.tzinfo is None:
+                            event_start = event_start.replace(tzinfo=datetime.timezone.utc)
+                    
+                    # Check if event starts after today's midnight
+                    if event_start > today_midnight:
+                        events_to_delete.append(event['id'])
+            
+            page_token = events_result.get('nextPageToken')
+            if not page_token:
+                break
+                
+        except HttpError as error:
+            print(f"An error occurred while fetching events: {error}")
+            break
+    
+    # Delete events using batch requests
+    if events_to_delete:
+        batch_results = []
+        
+        def BatchCallback(request_id, response, exception):
+            if exception is not None:
+                batch_results.append(("error", request_id, exception))
+            else:
+                batch_results.append(("success", request_id, response))
+        
+        batch = service.new_batch_http_request(callback=BatchCallback)
+        
+        for event_id in events_to_delete:
+            batch.add(service.events().delete(calendarId=calendar_id, eventId=event_id))
+        
+        batch.execute()
+        
+        with open("log.txt", "a") as file:
+            file.write(f"Deleted {len(events_to_delete)} future events\n")
+        print(f"Deleted {len(events_to_delete)} future events")
+    else:
+        print("No future events to delete")
