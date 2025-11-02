@@ -221,7 +221,6 @@ def init_gui(newGame, game: str) -> None:
         init_joystick_pong(3)
     elif game == "selection":
         init_selection_joystick()
-
     InitBrowser()
 
 

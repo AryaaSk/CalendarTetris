@@ -500,7 +500,7 @@ Joystick start datetime: 2025-11-04 10:00:00+00:00
 Reset joystick event es9rbibhj8rt79rk0d4eqfjqoc back to center
 Created new joystick event: 2qm6ien5vuu7s60fmjm5cl3o70
 Joystick start datetime: 2025-11-04 10:00:00+00:00
-Created new joystick event: 4emhjfegv27a6387773ip03ljg
+Created new joystick event: i3vt298j8s6dn1q1p3m1mjbo1g
 Joystick start datetime: 2025-11-04 10:00:00+00:00
-Found and reset moved joystick event cfb5s13h4un5vth7vcqa18rnag back to center
-Found and reset moved joystick event 406qoq2q6jho5fes99qcjs3uus back to center
+Reset joystick event i3vt298j8s6dn1q1p3m1mjbo1g back to center
+Reset joystick event i3vt298j8s6dn1q1p3m1mjbo1g back to center
