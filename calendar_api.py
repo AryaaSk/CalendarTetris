@@ -456,6 +456,53 @@ def RefreshBrowser():
         except Exception as e:
             print(f"Warning: Could not refresh browser: {e}")
 
+<<<<<<< HEAD
+
+def init_emotes():
+    # only created one so far
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    center_start_datetime += datetime.timedelta(days=2)
+    center_start_datetime += datetime.timedelta(hours=15)
+    create_event("Test Emote", "Y", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+
+def check_emotes():
+    #emote selection
+    emotes = []
+
+    # define emote cell
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    emote_cell = center_start_datetime + datetime.timedelta(days=3)
+    emote_cell = emote_cell + datetime.timedelta(hours=15)
+
+    time_min = emote_cell
+    time_max = emote_cell + datetime.timedelta(hours=1)
+
+    # pull events data from emote cell
+    events_data = service.events().list(
+        calendar_id,
+        timeMin = time_min,
+        timeMax = time_max,
+    ).execute()
+
+    #define play emote function
+    def play_emote(emote):
+        print("playing some sort of emote")
+
+    emote_chosen = events_data.get(['items'])
+    
+    # play emote if is any emote event, or ignore if is a random event
+    if emote_chosen:
+        for emote in emote_chosen:
+            
+            #### play the emote
+            play_emote(chosen)
+
+    # delete emote
+    service.events(). 
+
+init_gui(False)
+=======
 init_gui(False)
 
 #use True to create new calendar, False to use existing calendar; true will also save calendar id and event ids to text files
+>>>>>>> 3b06f38e3200b15fd687416fd26123f052623d75
