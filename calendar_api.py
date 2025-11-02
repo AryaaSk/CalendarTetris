@@ -692,8 +692,3 @@ def check_emotes():
             # delete emote
             service.events().delete(calendarId=calendar_id, eventId=emote["id"]).execute()
             init_emotes()
-<<<<<<< HEAD
-
-init_gui(False, "pong")
-=======
->>>>>>> 710f9066d2f2d6e03978194cee0afb5e2936aca8
