@@ -217,13 +217,11 @@ def init_gui(newGame, game: str) -> None:
     if (game == "tetris"):
         init_joystick()
         init_emotes()
-        InitBrowser()
     elif (game == "pong"):
         init_joystick_pong(3)
-        InitBrowser()
     elif game == "selection":
         init_selection_joystick()
-        InitBrowser()
+    InitBrowser()
 
 
 def create_event(name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> str:

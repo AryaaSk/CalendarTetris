@@ -188,7 +188,7 @@ class Pong:
 
         # Update the grid
         if previous_grid != []:
-            update_grid(previous_grid, calendar_api.event_ids, render_board)
+            update_grid(previous_grid, render_board)
         previous_grid = render_board
     
     def game_loop(self):
@@ -243,7 +243,7 @@ class Pong:
         time.sleep(3)
         
         # Clear the grid
-        update_grid(previous_grid, calendar_api.event_ids, [['.'] * 10 for _ in range(24)])
+        update_grid(previous_grid, [['.'] * 10 for _ in range(24)])
     
     def input_loop(self):
         """Handles user input in a separate thread"""
@@ -259,8 +259,8 @@ class Pong:
                 
                 if move == 'q':
                     print("\nQuitting game...")
+                    update_grid(self.board, [['.'] * 10 for _ in range(24)])
                     self.gameOver = True
-                    update_grid(previous_grid, calendar_api.event_ids, [['.'] * 10 for _ in range(24)])
                     break
                 elif move == 'a':
                     self.MovePaddle1(-1)
@@ -285,7 +285,7 @@ def main():
     l[22][4] = "R"
     l[22][5] = "R"
     l[22][6] = "R"
-    update_grid([['.'] * 10 for _ in range(24)], calendar_api.event_ids, l)
+    update_grid([['.'] * 10 for _ in range(24)], l)
 
     # Start input thread (daemon)
     input_thread = threading.Thread(target=game.input_loop, daemon=True)
