@@ -288,13 +288,13 @@ def set_grid(grid: list[list[str]]) -> list[str]:
     for y in range(24):
         for x in range(10):
             event = create_event(chr(ord('A') + x), grid[y][x], date + datetime.timedelta(hours=y), date + datetime.timedelta(hours=y+1))
-            event_ids.append(event["id"])
+            event_ids.append(event)
     return event_ids
 
 
-def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[str], new_grid: list[list[str]]) -> None:
+def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[str], new_grid: list[list[str]], refresh_browser: bool = True) -> None:
     """
-    Updates the grid in the calendar for the given date using batch requests.
+    Updates the grid in the calendar for the given date using batch requests.   
 
     Args:
         previous_grid: 24 x 10 grid of strings
@@ -342,7 +342,8 @@ def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[st
 
         #time.sleep(3)
         # Refresh browser to show updates immediately
-        RefreshBrowser()
+        if refresh_browser:
+            RefreshBrowser()
 
 def update_score(score: int) -> None:
     """

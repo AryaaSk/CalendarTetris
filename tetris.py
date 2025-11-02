@@ -3,7 +3,7 @@ import threading
 import sys
 import os
 import time
-from calendar_api import update_grid, event_ids, check_joystick, init_joystick
+from calendar_api import update_grid, event_ids, check_joystick, init_joystick, update_score
 
 previous_grid = []
 
@@ -114,6 +114,7 @@ class Tetris:
         self.score = 0
         self.linesCleared = 0
         self.gameOver = False
+        self.tick_count = 0
         self.SpawnNewPiece()
     
     def SpawnNewPiece(self):
@@ -236,6 +237,7 @@ class Tetris:
             
             # Spawn next piece
             self.SpawnNewPiece()
+            self.tick_count += 1
 
     def EndScreen(self):
         for y in range(self.height - 6):
@@ -280,7 +282,8 @@ class Tetris:
             print(' '.join(row))
         """
         if (previous_grid != []):
-            update_grid(previous_grid, event_ids, render_board)
+            refresh_browser = self.tick_count % 2 == 0
+            update_grid(previous_grid, event_ids, render_board, refresh_browser)
         previous_grid = render_board
         
     def tick_loop(self):
