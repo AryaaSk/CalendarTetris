@@ -283,7 +283,7 @@ class Tetris:
         """
         if (previous_grid != []):
             refresh_browser = self.tick_count % 2 == 0
-            update_grid(previous_grid, event_ids, render_board, refresh_browser)
+            update_grid(previous_grid, render_board, refresh_browser)
         previous_grid = render_board
         
     def tick_loop(self):
@@ -321,7 +321,7 @@ class Tetris:
                 if move == 'q':
                     print("\nQuitting game...")
                     #reset the grid
-                    update_grid(self.board, event_ids, [['.'] * 10 for _ in range(24)])
+                    update_grid(self.board, [['.'] * 10 for _ in range(24)])
                     self.gameOver = True
                     break
                 elif move == 'a':

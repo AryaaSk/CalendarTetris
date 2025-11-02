@@ -21,3 +21,7 @@ Reset joystick event ln06g2vl512kj32bb8fuutkalc back to center
 Created new joystick event: ir511inngpcif2uke6gqo0fi6c
 Joystick start datetime: 2025-11-04 10:00:00+00:00
 Reset joystick event ir511inngpcif2uke6gqo0fi6c back to center
+Created new joystick event: op8jqevei1c2iulsalu0m4m6q4
+Joystick start datetime: 2025-11-04 10:00:00+00:00
+Reset joystick event op8jqevei1c2iulsalu0m4m6q4 back to center
+Reset joystick event op8jqevei1c2iulsalu0m4m6q4 back to center
