@@ -333,12 +333,16 @@ def RefreshBrowser():
 
 
 def init_emotes():
+    # only created one so far
     center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     center_start_datetime += datetime.timedelta(days=2)
     center_start_datetime += datetime.timedelta(hours=15)
     create_event("Test Emote", "Y", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
 
 def check_emotes():
+    #emote selection
+    emotes = []
+
     # define emote cell
     center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     emote_cell = center_start_datetime + datetime.timedelta(days=3)
@@ -354,7 +358,20 @@ def check_emotes():
         timeMax = time_max,
     ).execute()
 
-    events = events_data.get(['items'])
-    # play emote if is any emote event and reset afterwards, or ignore if is a random event
+    #define play emote function
+    def play_emote(emote):
+        print("playing some sort of emote")
+
+    emote_chosen = events_data.get(['items'])
+    
+    # play emote if is any emote event, or ignore if is a random event
+    if emote_chosen:
+        for emote in emote_chosen:
+            
+            #### play the emote
+            play_emote(chosen)
+
+    # delete emote
+    service.events(). 
 
 init_gui(False)
