@@ -5,7 +5,7 @@ from pong import main as pong_main
 
 def main():
     """Main launcher"""
-    init_gui(False, "selection")
+    init_gui(True, "selection")
     while True:
         game = check_selection_joystick()
         if game:

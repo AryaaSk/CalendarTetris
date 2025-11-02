@@ -161,7 +161,6 @@ def init_selection_joystick() -> None:
 
 
 def init_gui(newGame, game: str) -> None:
-def init_gui(newGame, game: str) -> None:
     global service
     global calendar_id
     global event_ids
@@ -217,16 +216,14 @@ def init_gui(newGame, game: str) -> None:
     #print(f"Event IDs: {event_ids}")
     if (game == "tetris"):
         init_joystick()
+        init_emotes()
         InitBrowser()
     elif (game == "pong"):
         init_joystick_pong(3)
         InitBrowser()
     elif game == "selection":
         init_selection_joystick()
-
-    init_joystick()
-    init_emotes()
-    InitBrowser()
+        InitBrowser()
 
 
 def create_event(name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> str:
