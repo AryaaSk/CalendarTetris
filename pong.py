@@ -36,7 +36,8 @@ class Pong:
         self.width = width
         self.height = height
         self.board = [['.' for _ in range(width)] for _ in range(height)]
-        
+        self.score = 0
+        self.linesCleared = 0
         # Paddle settings
         self.paddle_length = 3
         self.paddle1_x = width // 2 - self.paddle_length // 2  # Top paddle (Player 1)
@@ -178,6 +179,13 @@ class Pong:
                 if self.height - 1 - i >= 0 and self.width - 1 >= 0:
                     render_board[self.height - 1 - i][self.width - 1] = 'M'  # Magenta for Player 2 score
         
+        print("\n" + "=" * 50)
+        print(f"Score: {self.score} | Lines: {self.linesCleared}")
+        print("=" * 50)
+        
+        for row in render_board:
+            print(' '.join(row))
+
         # Update the grid
         if previous_grid != []:
             update_grid(previous_grid, calendar_api.event_ids, render_board)
@@ -245,7 +253,6 @@ class Pong:
         print("  Player 2 (Bottom): 'j' = left, 'l' = right")
         print("  'q' = quit")
         print("\nFirst to 5 points wins!\n")
-        
         while not self.gameOver:
             try:
                 move = GetChar().lower()
@@ -271,6 +278,14 @@ class Pong:
 def main():
     """Main game loop"""
     game = Pong()
+    l = [['.'] * 10 for _ in range(24)]
+    l[1][4] = "B"
+    l[1][5] = "B"
+    l[1][6] = "B"
+    l[22][4] = "R"
+    l[22][5] = "R"
+    l[22][6] = "R"
+    update_grid([['.'] * 10 for _ in range(24)], calendar_api.event_ids, l)
 
     # Start input thread (daemon)
     input_thread = threading.Thread(target=game.input_loop, daemon=True)
