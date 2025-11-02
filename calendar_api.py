@@ -287,8 +287,8 @@ def set_grid(grid: list[list[str]]) -> list[str]:
     event_ids = []
     for y in range(24):
         for x in range(10):
-            event = create_event(chr(ord('A') + x), grid[y][x], date + datetime.timedelta(hours=y), date + datetime.timedelta(hours=y+1))
-            event_ids.append(event)
+            event_id = create_event(chr(ord('A') + x), grid[y][x], date + datetime.timedelta(hours=y), date + datetime.timedelta(hours=y+1))
+            event_ids.append(event_id)
     return event_ids
 
 
@@ -384,10 +384,16 @@ def check_joystick() -> int:
         event_start_datetime = datetime.datetime.fromisoformat(event["start"]["dateTime"])
         if event_start_datetime.date() == center_start_datetime.date() - datetime.timedelta(days=1):
             # Left
+            # If this is the joystick event itself, we'll reset it in init_joystick(), don't delete it
+            if event["id"] == joystick_event_id:
+                return 1
             service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 1
         elif event_start_datetime.date() == center_start_datetime.date() + datetime.timedelta(days=1):
             # Right
+            # If this is the joystick event itself, we'll reset it in init_joystick(), don't delete it
+            if event["id"] == joystick_event_id:
+                return 2
             service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 2
         elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime < center_start_datetime and event["id"] != score_event_id:
