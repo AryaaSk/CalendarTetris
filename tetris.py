@@ -269,7 +269,19 @@ class Tetris:
     def tick_loop(self):
         """Runs the game tick every second, independent of input"""
         while not self.gameOver:
-            time.sleep(0.5)  # tick every 0.5 seconds
+            # Check joystick input
+            joystick_input = check_joystick()
+            if joystick_input != 0:
+                init_joystick()
+            if joystick_input == 1:  # Left
+                self.TryMove(-1, 0)
+            elif joystick_input == 2:  # Right
+                self.TryMove(1, 0)
+            elif joystick_input == 3:  # Up
+                self.TryRotate()
+            elif joystick_input == 4:  # Down
+                self.TryMove(0, 1)
+            
             self.Tick()
             self.Render()
     
