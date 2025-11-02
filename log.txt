@@ -483,3 +483,7 @@ Reset joystick event op8jqevei1c2iulsalu0m4m6q4 back to center
 >>>>>>> cc91e7d3ab4b01313a244633cd6f75b4fefefbfd
 Created new joystick event: 2qm6ien5vuu7s60fmjm5cl3o70
 Joystick start datetime: 2025-11-04 10:00:00+00:00
+Created new joystick event: 4emhjfegv27a6387773ip03ljg
+Joystick start datetime: 2025-11-04 10:00:00+00:00
+Found and reset moved joystick event cfb5s13h4un5vth7vcqa18rnag back to center
+Found and reset moved joystick event 406qoq2q6jho5fes99qcjs3uus back to center

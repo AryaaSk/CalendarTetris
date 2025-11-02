@@ -155,7 +155,6 @@ def init_joystick() -> None:
 
 
 def init_gui(newGame, game: str) -> None:
-def init_gui(newGame, game: str) -> None:
     global service
     global calendar_id
     global event_ids
@@ -211,13 +210,10 @@ def init_gui(newGame, game: str) -> None:
     #print(f"Event IDs: {event_ids}")
     if (game == "tetris"):
         init_joystick()
-        InitBrowser()
+        init_emotes()
     elif (game == "pong"):
         init_joystick_pong(3)
-        InitBrowser()
 
-    init_joystick()
-    init_emotes()
     InitBrowser()
 
 
@@ -660,4 +656,4 @@ def check_emotes():
             service.events().delete(calendarId=calendar_id, eventId=emote["id"]).execute()
             init_emotes()
 
-init_gui(True, "tetris")
+init_gui(False, "pong")
