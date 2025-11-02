@@ -157,7 +157,7 @@ def init_selection_joystick() -> None:
     center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     center_start_datetime += datetime.timedelta(days=2)
     center_start_datetime += datetime.timedelta(hours=10)
-    create_event("Select Game", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+    create_event("Select Game: Left - Tetris, Right - Pong", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
 
 
 def init_gui(newGame, game: str) -> None:
