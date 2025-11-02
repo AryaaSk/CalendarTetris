@@ -1,4 +1,5 @@
 import datetime
+import time
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -241,6 +242,8 @@ def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[st
     # Execute batch request
     if len(cells_to_update) > 0:
         batch.execute()
+
+        time.sleep(3)
         # Refresh browser to show updates immediately
         RefreshBrowser()
 

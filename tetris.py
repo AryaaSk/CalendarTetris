@@ -1,9 +1,8 @@
 import random
-import time
 import threading
 import sys
 import os
-from calendar_api import update_grid, event_ids
+from calendar_api import update_grid, event_ids, check_joystick, init_joystick
 
 previous_grid = []
 
@@ -287,6 +286,7 @@ class Tetris:
     
     def input_loop(self):
         """Handles user input in a separate thread"""
+        print("Input loop started, q to quit")
         while not self.gameOver:
             try:
                 print("\nNext move (a/d/s/w/q): ", end='', flush=True)
