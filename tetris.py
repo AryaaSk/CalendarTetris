@@ -1,9 +1,9 @@
 import random
-import time
 import threading
 import sys
 import os
-from calendar_api import update_grid, event_ids
+import time
+from calendar_api import update_grid, event_ids, check_joystick, init_joystick, update_score
 
 previous_grid = []
 
@@ -114,6 +114,7 @@ class Tetris:
         self.score = 0
         self.linesCleared = 0
         self.gameOver = False
+        self.tick_count = 0
         self.SpawnNewPiece()
     
     def SpawnNewPiece(self):
@@ -190,6 +191,9 @@ class Tetris:
             self.score += 500
         elif lines_cleared_this_frame == 4:
             self.score += 800
+        #self.score += 1 # for testing
+        
+        update_score(self.score)
     
     def TryMove(self, dx, dy):
         """Attempts to move the current piece by (dx, dy)"""
@@ -233,6 +237,21 @@ class Tetris:
             
             # Spawn next piece
             self.SpawnNewPiece()
+            self.tick_count += 1
+
+    def EndScreen(self):
+        for y in range(self.height - 6):
+                self.board[y] = ["."] * self.width
+                self.board[y + 1] = ["R", "R", "R", "R", ".", ".", "R", "R", "R", "R"]
+                self.board[y + 2] = ["R", ".", ".", ".", ".", ".", "R", ".", ".", "."]
+                self.board[y + 3] = ["R", ".", "R", "R", ".", ".", "R", ".", "R", "R"]
+                self.board[y + 4] = ["R", ".", ".", "R", ".", ".", "R", ".", ".", "R"]
+                self.board[y + 5] = ["R", "R", "R", "R", ".", ".", "R", "R", "R", "R"]
+                self.board[y + 6] = ["."] * self.width
+                self.Render()
+                time.sleep(1.5)
+        self.board = [['.' for _ in range(self.width)] for _ in range(self.height)]
+        self.Render()
 
 
     def Render(self):
@@ -263,7 +282,8 @@ class Tetris:
             print(' '.join(row))
         """
         if (previous_grid != []):
-            update_grid(previous_grid, event_ids, render_board)
+            refresh_browser = self.tick_count % 2 == 0
+            update_grid(previous_grid, event_ids, render_board, refresh_browser)
         previous_grid = render_board
         
     def tick_loop(self):
@@ -282,11 +302,16 @@ class Tetris:
             elif joystick_input == 4:  # Down
                 self.TryMove(0, 1)
             
+            # Update displayed score
+            
             self.Tick()
             self.Render()
+        if self.gameOver:
+            self.EndScreen()
     
     def input_loop(self):
         """Handles user input in a separate thread"""
+        print("Input loop started, q to quit")
         while not self.gameOver:
             try:
                 print("\nNext move (a/d/s/w/q): ", end='', flush=True)
