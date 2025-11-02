@@ -3,7 +3,7 @@ import threading
 import sys
 import os
 import time
-from calendar_api import update_grid, event_ids, check_joystick, init_joystick
+from calendar_api import update_grid, event_ids, check_joystick, init_joystick, update_score
 
 previous_grid = []
 
