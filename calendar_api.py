@@ -75,7 +75,7 @@ def init_joystick() -> None:
     create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
 
 
-def init_gui(newGame) -> None:
+def init_gui(newGame, game) -> None:
     global service
     global calendar_id
     global event_ids
@@ -102,9 +102,14 @@ def init_gui(newGame) -> None:
 
     #print(f"Calendar ID: {calendar_id}")
     #print(f"Event IDs: {event_ids}")
+    if (game == "tetris"):
+        init_joystick()
+        InitBrowser()
+    elif (game == "pong"):
+        init_joystick_pong(3)
+        InitBrowser()
 
-    init_joystick()
-    InitBrowser()
+        
 
 
 def create_event(name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> None:
@@ -255,6 +260,71 @@ def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[st
         RefreshBrowser()
 
 
+def check_joystick_pong() -> int:
+    """
+    Checks the joystick and returns the following:
+    0: No change
+    1: Left
+    2: Right
+    3: Up
+    4: Down
+    """
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    center_start_datetime += datetime.timedelta(days=2)
+    center_start_datetime += datetime.timedelta(hours=3)
+    centre_start_datetime2 = center_start_datetime + datetime.timedelta(hours = 17)
+    
+    # Ensure timezone-aware datetime for API call
+    if center_start_datetime.tzinfo is None:
+        center_start_datetime = center_start_datetime.replace(tzinfo=datetime.timezone.utc)
+
+    if centre_start_datetime2.tzinfo is None:
+        centre_start_datetime2 = centre_start_datetime2.replace(tzinfo=datetime.timezone.utc)
+
+    time_min = (center_start_datetime - datetime.timedelta(days=1)).isoformat()
+    time_max = (center_start_datetime + datetime.timedelta(days=2)).isoformat()
+
+    
+    events = service.events().list(
+        calendarId=calendar_id,
+        timeMin=time_min,
+        timeMax=time_max
+    ).execute()
+    for event in events["items"]:
+        event_start_datetime = datetime.datetime.fromisoformat(event["start"]["dateTime"])
+        if event_start_datetime.date() == centre_start_datetime2.date() - datetime.timedelta(days=1) and event_start_datetime.time().hour > 12:
+            # Left
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
+            return 3
+        elif event_start_datetime.date() == center_start_datetime.date() - datetime.timedelta(days=1) and event_start_datetime.time().hour < 12:
+            # Left
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
+            return 1
+        elif event_start_datetime.date() == centre_start_datetime2.date() + datetime.timedelta(days=1) and event_start_datetime.time().hour > 12:
+            # Right
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
+            return 4
+        elif event_start_datetime.date() == center_start_datetime.date() + datetime.timedelta(days=1) and event_start_datetime.time().hour < 12:
+            # Right
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
+            return 2
+    return 0
+
+def init_joystick_pong(cont: int):
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    center_start_datetime += datetime.timedelta(days=2)
+    center_start_datetime += datetime.timedelta(hours=3)
+    if cont == 1:
+        create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+    elif cont == 2:
+        center_start_datetime += datetime.timedelta(hours = 17)
+        create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+    elif cont == 3:
+        create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+        center_start_datetime += datetime.timedelta(hours = 17)
+        create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+
+
 def check_joystick() -> int:
     """
     Checks the joystick and returns the following:
@@ -343,6 +413,6 @@ def RefreshBrowser():
         except Exception as e:
             print(f"Warning: Could not refresh browser: {e}")
 
-init_gui(True)
+#init_gui(False, "pong")
 
 #use True to create new calendar, False to use existing calendar; true will also save calendar id and event ids to text files
