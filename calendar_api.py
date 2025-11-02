@@ -6,10 +6,15 @@ from googleapiclient.discovery import build, Resource
 from googleapiclient.errors import HttpError
 from googleapiclient.http import BatchHttpRequest
 import os
+from playwright.sync_api import sync_playwright
 
 # This module requires credentials.json to be in the same directory.
 
 SCOPES = ["https://www.googleapis.com/auth/calendar.app.created"]
+
+# Browser control variables
+_browser_context = None
+_page = None
 
 # Map color codes to Google Calendar color IDs
 COLOR_MAP = {
@@ -43,6 +48,7 @@ def get_service() -> Resource:
 
 service = None
 calendar_id = None
+event_ids = []
 
 
 def init_new_calendar(summary="Tetris Calendar", time_zone="Europe/London") -> None:
@@ -61,14 +67,36 @@ def init_joystick() -> None:
     create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
 
 
-def init_gui() -> None:
+def init_gui(newGame) -> None:
     global service
     global calendar_id
+    global event_ids
     service = get_service()
-    #calendar_id = init_new_calendar()
-    calendar_id = "379c25c61237b265b27f1061aec64b4cee248423f75d282b0457de85eeb1d290@group.calendar.google.com"
+
+    if newGame:
+        calendar_id = init_new_calendar()
+        #write to file
+        with open("calendar_id.txt", "w") as file:
+            file.write(calendar_id)
+
+        event_ids = set_grid([['.'] * 10 for _ in range(24)])
+        #write to file
+        with open("event_ids.txt", "w") as file:
+            file.write("\n".join(event_ids))
+    
+    else:
+        #read from file
+        with open("calendar_id.txt", "r") as file:
+            calendar_id = file.read().strip()
+
+        with open("event_ids.txt", "r") as file:
+            event_ids = file.read().strip().split("\n")
+
     #print(f"Calendar ID: {calendar_id}")
+    #print(f"Event IDs: {event_ids}")
+
     init_joystick()
+    InitBrowser()
 
 
 def create_event(name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> None:
@@ -213,8 +241,8 @@ def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[st
     # Execute batch request
     if len(cells_to_update) > 0:
         batch.execute()
-    
-    print(f"Grid updated: {len(cells_to_update)} cells changed")
+        # Refresh browser to show updates immediately
+        RefreshBrowser()
 
 
 def check_joystick() -> int:
@@ -262,6 +290,45 @@ def check_joystick() -> int:
             return 4
     return 0
 
-init_gui()
-#event_ids = set_grid([['.'] * 10 for _ in range(24)])
-#print(f"Event IDs: {event_ids}")
+
+def InitBrowser():
+    """
+    Connects to an existing Chrome browser that was launched with remote debugging.
+    Chrome must be started with: chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
+    
+    On macOS: /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
+    On Linux: google-chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
+    On Windows: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\\Temp\\chrome-debug"
+    """
+    global _browser_context, _page
+    try:
+        playwright = sync_playwright().start()
+        
+        # Connect to existing browser on port 9222
+        browser = playwright.chromium.connect_over_cdp("http://localhost:9222")
+        contexts = browser.contexts
+        if contexts:
+            _browser_context = contexts[0]
+            pages = _browser_context.pages
+            _page = pages[0] if pages else None
+            print("Connected to existing Chrome browser")
+        else:
+            print("Warning: No browser contexts found")
+    except ImportError:
+        print("Warning: Playwright not installed. Browser refresh disabled.")
+    except Exception as e:
+        print(f"Warning: Could not connect to browser: {e}")
+
+
+def RefreshBrowser():
+    """
+    Refreshes the currently open page in the browser.
+    """
+    global _page
+    if _page:
+        try:
+            _page.reload(wait_until="load")
+        except Exception as e:
+            print(f"Warning: Could not refresh browser: {e}")
+
+init_gui(False)
