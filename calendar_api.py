@@ -339,6 +339,8 @@ def init_emotes():
     create_event("Test Emote", "Y", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
 
 def check_emotes():
+    # define selection of emotes?
+
     # define emote cell
     center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     emote_cell = center_start_datetime + datetime.timedelta(days=3)
@@ -355,6 +357,11 @@ def check_emotes():
     ).execute()
 
     events = events_data.get(['items'])
-    # play emote if is any emote event and reset afterwards, or ignore if is a random event
+
+    # play emote if is any emote event --> may need separate calendar
+
+
+    # reset afterwards
+    
 
 init_gui(False)
