@@ -1,9 +1,10 @@
 import random
+from tabnanny import check
 import threading
 import sys
 import os
 import time
-from calendar_api import update_grid, event_ids, check_joystick, init_joystick, update_score
+from calendar_api import update_grid, event_ids, check_joystick, init_joystick, update_score, check_emotes
 
 previous_grid = []
 
@@ -249,7 +250,10 @@ class Tetris:
                 self.board[y + 5] = ["R", "R", "R", "R", ".", ".", "R", "R", "R", "R"]
                 self.board[y + 6] = ["."] * self.width
                 self.Render()
-                time.sleep(1.5)
+                time.sleep(0.5)
+        self.ClearBoard()
+
+    def ClearBoard(self):
         self.board = [['.' for _ in range(self.width)] for _ in range(self.height)]
         self.Render()
 
@@ -272,6 +276,9 @@ class Tetris:
                         if 0 <= board_y < self.height and 0 <= board_x < self.width:
                             render_board[board_y][board_x] = self.currentPiece.Color
         
+
+        check_emotes()
+
         """
         # Print the board
         print("\n" + "=" * 50)
@@ -282,8 +289,7 @@ class Tetris:
             print(' '.join(row))
         """
         if (previous_grid != []):
-            refresh_browser = self.tick_count % 2 == 0
-            update_grid(previous_grid, event_ids, render_board, refresh_browser)
+            update_grid(previous_grid, render_board)
         previous_grid = render_board
         
     def tick_loop(self):
@@ -306,8 +312,11 @@ class Tetris:
             
             self.Tick()
             self.Render()
+            time.sleep(0.5)
+
         if self.gameOver:
-            self.EndScreen()
+            #self.EndScreen()
+            self.ClearBoard()
     
     def input_loop(self):
         """Handles user input in a separate thread"""
@@ -321,7 +330,7 @@ class Tetris:
                 if move == 'q':
                     print("\nQuitting game...")
                     #reset the grid
-                    update_grid(self.board, event_ids, [['.'] * 10 for _ in range(24)])
+                    update_grid(self.board, [['.'] * 10 for _ in range(24)])
                     self.gameOver = True
                     break
                 elif move == 'a':
