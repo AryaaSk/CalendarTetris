@@ -331,4 +331,30 @@ def RefreshBrowser():
         except Exception as e:
             print(f"Warning: Could not refresh browser: {e}")
 
+
+def init_emotes():
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    center_start_datetime += datetime.timedelta(days=2)
+    center_start_datetime += datetime.timedelta(hours=15)
+    create_event("Test Emote", "Y", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+
+def check_emotes():
+    # define emote cell
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    emote_cell = center_start_datetime + datetime.timedelta(days=3)
+    emote_cell = emote_cell + datetime.timedelta(hours=15)
+
+    time_min = emote_cell
+    time_max = emote_cell + datetime.timedelta(hours=1)
+
+    # pull events data from emote cell
+    events_data = service.events().list(
+        calendar_id,
+        timeMin = time_min,
+        timeMax = time_max,
+    ).execute()
+
+    events = events_data.get(['items'])
+    # play emote if is any emote event and reset afterwards, or ignore if is a random event
+
 init_gui(False)
