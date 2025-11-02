@@ -1,5 +1,4 @@
 import datetime
-import time
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -59,6 +58,7 @@ calendar_id = None
 event_ids = []
 score_event_id = None
 joystick_event_id = None
+emote_event_id = None
 
 
 def init_new_calendar(summary="Tetris Calendar", time_zone="Europe/London") -> None:
@@ -156,6 +156,7 @@ def init_gui(newGame) -> None:
     global calendar_id
     global event_ids
     global score_event_id
+    global emote_event_id
     service = get_service()
 
     if newGame:
@@ -188,12 +189,23 @@ def init_gui(newGame) -> None:
 
         with open("score_event_id.txt", "r") as file:
             score_event_id = file.read().strip()
+        
+        try:
+            with open("emote_event_id.txt", "r") as file:
+                emote_event_id = file.read().strip()
+                # If file exists but is empty, treat as None
+                if not emote_event_id:
+                    emote_event_id = None
+        except FileNotFoundError:
+            emote_event_id = None
+        
         update_score(0)
 
     #print(f"Calendar ID: {calendar_id}")
     #print(f"Event IDs: {event_ids}")
 
     init_joystick()
+    init_emotes()
     InitBrowser()
 
 
@@ -342,7 +354,6 @@ def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[st
 
         #time.sleep(3)
         # Refresh browser to show updates immediately
-        print(f"Refreshing browser")
         RefreshBrowser()
 
 def update_score(score: int) -> None:
@@ -389,26 +400,25 @@ def check_joystick() -> int:
                 return 1
             service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 1
-        elif event_start_datetime.date() == center_start_datetime.date() + datetime.timedelta(days=1):
+        elif event_start_datetime.date() == center_start_datetime.date() + datetime.timedelta(days=1) and event["id"] != score_event_id and event["id"] != emote_event_id:
             # Right
             # If this is the joystick event itself, we'll reset it in init_joystick(), don't delete it
             if event["id"] == joystick_event_id:
                 return 2
             service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 2
-        elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime < center_start_datetime and event["id"] != score_event_id:
+        elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime < center_start_datetime and event["id"] != score_event_id and event["id"] != emote_event_id:
             # Up
             # If this is the joystick event itself, we'll reset it in init_joystick(), don't delete it
             if event["id"] == joystick_event_id:
+                service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
                 return 3
-            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
-            return 3
-        elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime > center_start_datetime and event["id"] != score_event_id:
+        elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime > center_start_datetime and event["id"] != score_event_id and event["id"] != emote_event_id:
             # Down
             # If this is the joystick event itself, we'll reset it in init_joystick(), don't delete it
             if event["id"] == joystick_event_id:
+                service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
                 return 4
-            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 4
     return 0
 
@@ -456,14 +466,23 @@ def RefreshBrowser():
         except Exception as e:
             print(f"Warning: Could not refresh browser: {e}")
 
-<<<<<<< HEAD
 
 def init_emotes():
-    # only created one so far
-    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    center_start_datetime += datetime.timedelta(days=2)
-    center_start_datetime += datetime.timedelta(hours=15)
-    create_event("Test Emote", "Y", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+    global emote_event_id
+    
+    emote_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    emote_start_datetime += datetime.timedelta(days=2)
+    emote_start_datetime += datetime.timedelta(hours=15)
+    
+    # Ensure timezone-aware datetime for API call
+    if emote_start_datetime.tzinfo is None:
+        emote_start_datetime = emote_start_datetime.replace(tzinfo=datetime.timezone.utc)
+    
+    # Always create a new emote button each game
+    emote_event_id = create_event("Rage 😡", "M", emote_start_datetime, emote_start_datetime + datetime.timedelta(hours=1))
+    # Write to file to persist the ID
+    with open("emote_event_id.txt", "w") as file:
+        file.write(emote_event_id)
 
 def check_emotes():
     #emote selection
@@ -473,36 +492,41 @@ def check_emotes():
     center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     emote_cell = center_start_datetime + datetime.timedelta(days=3)
     emote_cell = emote_cell + datetime.timedelta(hours=15)
+    
+    # Ensure timezone-aware datetime for API call
+    if emote_cell.tzinfo is None:
+        emote_cell = emote_cell.replace(tzinfo=datetime.timezone.utc)
 
-    time_min = emote_cell
-    time_max = emote_cell + datetime.timedelta(hours=1)
+    time_min = emote_cell.isoformat()
+    time_max = (emote_cell + datetime.timedelta(hours=1)).isoformat()
 
     # pull events data from emote cell
-    events_data = service.events().list(
-        calendar_id,
-        timeMin = time_min,
-        timeMax = time_max,
+    events = service.events().list(
+        calendarId=calendar_id,
+        timeMin=time_min,
+        timeMax=time_max
     ).execute()
 
     #define play emote function
     def play_emote(emote):
         print("playing some sort of emote")
+        # Create an event at datetime.now().replace(hour=0, minute=0, second=0) + 2 days + 20 hours
+        emote_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        emote_datetime += datetime.timedelta(days=2)
+        emote_datetime += datetime.timedelta(hours=20)
+        create_event("🤬", "M", emote_datetime, emote_datetime + datetime.timedelta(hours=1))
 
-    emote_chosen = events_data.get(['items'])
+    emote_chosen = events.get('items', [])
     
     # play emote if is any emote event, or ignore if is a random event
     if emote_chosen:
         for emote in emote_chosen:
             
             #### play the emote
-            play_emote(chosen)
-
-    # delete emote
-    service.events(). 
+            play_emote(emote)
+            
+            # delete emote
+            service.events().delete(calendarId=calendar_id, eventId=emote["id"]).execute()
+            init_emotes()
 
 init_gui(False)
-=======
-init_gui(False)
-
-#use True to create new calendar, False to use existing calendar; true will also save calendar id and event ids to text files
->>>>>>> 3b06f38e3200b15fd687416fd26123f052623d75
