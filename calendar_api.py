@@ -153,6 +153,12 @@ def init_joystick() -> None:
         file.write(f"Created new joystick event: {joystick_event_id}\n")
         file.write(f"Joystick start datetime: {joystick_start_datetime}\n")
 
+def init_selection_joystick() -> None:
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    center_start_datetime += datetime.timedelta(days=2)
+    center_start_datetime += datetime.timedelta(hours=10)
+    create_event("Select Game: Left - Tetris, Right - Pong", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+
 
 def init_gui(newGame, game: str) -> None:
 def init_gui(newGame, game: str) -> None:
@@ -215,6 +221,8 @@ def init_gui(newGame, game: str) -> None:
     elif (game == "pong"):
         init_joystick_pong(3)
         InitBrowser()
+    elif game == "selection":
+        init_selection_joystick()
 
     init_joystick()
     init_emotes()
@@ -555,6 +563,35 @@ def check_joystick() -> int:
     return 0
 
 
+def check_selection_joystick() -> str:
+    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    center_start_datetime += datetime.timedelta(days=2)
+    center_start_datetime += datetime.timedelta(hours=10)
+    
+    # Ensure timezone-aware datetime for API call
+    if center_start_datetime.tzinfo is None:
+        center_start_datetime = center_start_datetime.replace(tzinfo=datetime.timezone.utc)
+
+    time_min = (center_start_datetime - datetime.timedelta(days=1)).isoformat()
+    time_max = (center_start_datetime + datetime.timedelta(days=2)).isoformat()
+
+    events = service.events().list(
+        calendarId=calendar_id,
+        timeMin=time_min,
+        timeMax=time_max
+    ).execute()
+
+    for event in events["items"]:
+        event_start_datetime = datetime.datetime.fromisoformat(event["start"]["dateTime"])
+        if event_start_datetime.date() == center_start_datetime.date() - datetime.timedelta(days=1):
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
+            return "tetris"
+        elif event_start_datetime == center_start_datetime + datetime.timedelta(days=1):
+            service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
+            return "pong"
+    return ""
+
+
 def InitBrowser():
     """
     Connects to an existing Chrome browser that was launched with remote debugging.
@@ -659,5 +696,3 @@ def check_emotes():
             # delete emote
             service.events().delete(calendarId=calendar_id, eventId=emote["id"]).execute()
             init_emotes()
-
-init_gui(True, "tetris")

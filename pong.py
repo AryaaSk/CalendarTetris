@@ -277,9 +277,6 @@ class Pong:
 
 def main():
     """Main game loop"""
-    # Initialize the GUI/calendar
-    init_gui(False, "pong")
-    
     game = Pong()
     l = [['.'] * 10 for _ in range(24)]
     l[1][4] = "B"
