@@ -57,6 +57,8 @@ def get_service() -> Resource:
 service = None
 calendar_id = None
 event_ids = []
+score_event_id = None
+joystick_event_id = None
 
 
 def init_new_calendar(summary="Tetris Calendar", time_zone="Europe/London") -> None:
@@ -69,16 +71,91 @@ def init_new_calendar(summary="Tetris Calendar", time_zone="Europe/London") -> N
 
 
 def init_joystick() -> None:
-    center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    center_start_datetime += datetime.timedelta(days=2)
-    center_start_datetime += datetime.timedelta(hours=10)
-    create_event("Joystick", "C", center_start_datetime, center_start_datetime + datetime.timedelta(hours=1))
+    global joystick_event_id
+    
+    joystick_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    joystick_start_datetime += datetime.timedelta(days=2)
+    joystick_start_datetime += datetime.timedelta(hours=10)
+    
+    # Ensure timezone-aware datetime for API call
+    if joystick_start_datetime.tzinfo is None:
+        joystick_start_datetime = joystick_start_datetime.replace(tzinfo=datetime.timezone.utc)
+    
+    # First, check if joystick_event_id exists and get its current position
+    if joystick_event_id:
+        try:
+            existing_event = service.events().get(calendarId=calendar_id, eventId=joystick_event_id).execute()
+            existing_start = datetime.datetime.fromisoformat(existing_event["start"]["dateTime"])
+            
+            # Check if the existing event is at the correct center position
+            if existing_start.date() == joystick_start_datetime.date() and \
+               abs((existing_start - joystick_start_datetime).total_seconds()) < 60:  # Within 1 minute (exact position)
+                # Already at the correct position, no need to do anything
+                return
+            else:
+                # Event exists but is at wrong position - move it back to center
+                existing_event["start"]["dateTime"] = joystick_start_datetime.isoformat()
+                existing_event["end"]["dateTime"] = (joystick_start_datetime + datetime.timedelta(hours=1)).isoformat()
+                service.events().update(calendarId=calendar_id, eventId=joystick_event_id, body=existing_event).execute()
+                with open("log.txt", "a") as file:
+                    file.write(f"Reset joystick event {joystick_event_id} back to center\n")
+                return
+        except HttpError:
+            # Event doesn't exist or was deleted, will search for it or create new one below
+            joystick_event_id = None
+    
+    # Search for joystick event in a wide time range (it might have been moved left/right/up/down)
+    time_min = (joystick_start_datetime - datetime.timedelta(days=2)).isoformat()
+    time_max = (joystick_start_datetime + datetime.timedelta(days=3)).isoformat()
+    
+    events = service.events().list(
+        calendarId=calendar_id,
+        timeMin=time_min,
+        timeMax=time_max
+    ).execute()
+    
+    # Look for existing "Joystick" events - prioritize finding it at center, but also find it if moved
+    found_joystick_at_center = None
+    found_joystick_moved = None
+    
+    for event in events["items"]:
+        if event.get("summary") == "Joystick":
+            event_start_datetime = datetime.datetime.fromisoformat(event["start"]["dateTime"])
+            # If we find an existing joystick event at the expected time, reuse it
+            if event_start_datetime.date() == joystick_start_datetime.date() and \
+               abs((event_start_datetime - joystick_start_datetime).total_seconds()) < 60:  # Within 1 minute (exact position)
+                found_joystick_at_center = event
+            else:
+                # Found a joystick event but it's been moved
+                found_joystick_moved = event
+    
+    # If found at center, use it
+    if found_joystick_at_center:
+        joystick_event_id = found_joystick_at_center["id"]
+        return
+    
+    # If found but moved, move it back to center
+    if found_joystick_moved:
+        joystick_event_id = found_joystick_moved["id"]
+        found_joystick_moved["start"]["dateTime"] = joystick_start_datetime.isoformat()
+        found_joystick_moved["end"]["dateTime"] = (joystick_start_datetime + datetime.timedelta(hours=1)).isoformat()
+        service.events().update(calendarId=calendar_id, eventId=joystick_event_id, body=found_joystick_moved).execute()
+        with open("log.txt", "a") as file:
+            file.write(f"Found and reset moved joystick event {joystick_event_id} back to center\n")
+        return
+    
+    # No existing joystick event found, create a new one
+    joystick_event_id = create_event("Joystick", "C", joystick_start_datetime, joystick_start_datetime + datetime.timedelta(hours=1))
+    with open("log.txt", "a") as file:
+        file.write(f"Created new joystick event: {joystick_event_id}\n")
+        file.write(f"Joystick start datetime: {joystick_start_datetime}\n")
 
 
 def init_gui(newGame) -> None:
     global service
     global calendar_id
     global event_ids
+    global score_event_id
     service = get_service()
 
     if newGame:
@@ -91,6 +168,15 @@ def init_gui(newGame) -> None:
         #write to file
         with open("event_ids.txt", "w") as file:
             file.write("\n".join(event_ids))
+        
+        score_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        score_start_datetime += datetime.timedelta(days=2)
+        score_start_datetime += datetime.timedelta(hours=2)
+        #write to file
+        score_event_id = create_event("Score: 0", "G", score_start_datetime, score_start_datetime + datetime.timedelta(hours=1))
+        print(score_event_id)
+        with open("score_event_id.txt", "w") as file:
+            file.write(score_event_id)
     
     else:
         #read from file
@@ -100,6 +186,10 @@ def init_gui(newGame) -> None:
         with open("event_ids.txt", "r") as file:
             event_ids = file.read().strip().split("\n")
 
+        with open("score_event_id.txt", "r") as file:
+            score_event_id = file.read().strip()
+        update_score(0)
+
     #print(f"Calendar ID: {calendar_id}")
     #print(f"Event IDs: {event_ids}")
 
@@ -107,7 +197,7 @@ def init_gui(newGame) -> None:
     InitBrowser()
 
 
-def create_event(name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> None:
+def create_event(name: str, color: str, start: datetime.datetime, end: datetime.datetime) -> str:
     """
     Creates a Google Calendar event with the specified color, start, and end times.
     
@@ -165,7 +255,7 @@ def create_event(name: str, color: str, start: datetime.datetime, end: datetime.
     # Insert the event into the calendar
     try:
         event = service.events().insert(calendarId=calendar_id, body=event_body).execute()
-        return event
+        return event["id"]
     except HttpError as error:
         print(f"An error occurred: {error}")
         raise
@@ -250,9 +340,18 @@ def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[st
     if len(cells_to_update) > 0:
         batch.execute()
 
-        time.sleep(3)
+        #time.sleep(3)
         # Refresh browser to show updates immediately
         RefreshBrowser()
+
+def update_score(score: int) -> None:
+    """
+    Updates the score in the calendar.
+    """
+    event = service.events().get(calendarId=calendar_id, eventId=score_event_id).execute()
+    event["summary"] = f"Score: {score}"
+    service.events().update(calendarId=calendar_id, eventId=score_event_id, body=event).execute()
+    RefreshBrowser()
 
 
 def check_joystick() -> int:
@@ -290,12 +389,18 @@ def check_joystick() -> int:
             # Right
             service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 2
-        elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime < center_start_datetime:
+        elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime < center_start_datetime and event["id"] != score_event_id:
             # Up
+            # If this is the joystick event itself, we'll reset it in init_joystick(), don't delete it
+            if event["id"] == joystick_event_id:
+                return 3
             service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 3
-        elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime > center_start_datetime:
+        elif event_start_datetime.date() == center_start_datetime.date() and event_start_datetime > center_start_datetime and event["id"] != score_event_id:
             # Down
+            # If this is the joystick event itself, we'll reset it in init_joystick(), don't delete it
+            if event["id"] == joystick_event_id:
+                return 4
             service.events().delete(calendarId=calendar_id, eventId=event["id"]).execute()
             return 4
     return 0
@@ -343,6 +448,6 @@ def RefreshBrowser():
         except Exception as e:
             print(f"Warning: Could not refresh browser: {e}")
 
-init_gui(True)
+init_gui(False)
 
 #use True to create new calendar, False to use existing calendar; true will also save calendar id and event ids to text files

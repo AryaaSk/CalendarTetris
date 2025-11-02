@@ -2,7 +2,7 @@ import random
 import threading
 import sys
 import os
-from calendar_api import update_grid, event_ids, check_joystick, init_joystick
+from calendar_api import update_grid, event_ids, check_joystick, init_joystick, update_score
 
 previous_grid = []
 
@@ -189,6 +189,9 @@ class Tetris:
             self.score += 500
         elif lines_cleared_this_frame == 4:
             self.score += 800
+        #self.score += 1 # for testing
+        
+        update_score(self.score)
     
     def TryMove(self, dx, dy):
         """Attempts to move the current piece by (dx, dy)"""
@@ -280,6 +283,8 @@ class Tetris:
                 self.TryRotate()
             elif joystick_input == 4:  # Down
                 self.TryMove(0, 1)
+            
+            # Update displayed score
             
             self.Tick()
             self.Render()
