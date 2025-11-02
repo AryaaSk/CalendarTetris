@@ -151,7 +151,7 @@ def init_joystick() -> None:
         file.write(f"Joystick start datetime: {joystick_start_datetime}\n")
 
 
-def init_gui(newGame) -> None:
+def init_gui(newGame, game: str) -> None:
     global service
     global calendar_id
     global event_ids
@@ -525,8 +525,6 @@ def RefreshBrowser():
         except Exception as e:
             print(f"Warning: Could not refresh browser: {e}")
 
-<<<<<<< HEAD
-
 def init_emotes():
     # only created one so far
     center_start_datetime = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -564,14 +562,9 @@ def check_emotes():
         for emote in emote_chosen:
             
             #### play the emote
-            play_emote(chosen)
+            play_emote(emote_chosen)
 
     # delete emote
-    service.events(). 
+    service.events().delete(calendar_id=calendar_id, eventId=emote_chosen["id"]).execute()
 
-init_gui(False)
-=======
-init_gui(False)
-
-#use True to create new calendar, False to use existing calendar; true will also save calendar id and event ids to text files
->>>>>>> 3b06f38e3200b15fd687416fd26123f052623d75
+init_gui(False, "pong")
