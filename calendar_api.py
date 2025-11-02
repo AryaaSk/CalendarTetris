@@ -292,7 +292,7 @@ def set_grid(grid: list[list[str]]) -> list[str]:
     return event_ids
 
 
-def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[str], new_grid: list[list[str]], refresh_browser: bool = True) -> None:
+def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[str], new_grid: list[list[str]]) -> None:
     """
     Updates the grid in the calendar for the given date using batch requests.   
 
@@ -342,8 +342,8 @@ def update_grid(previous_grid: list[list[str]], previous_grid_event_ids: list[st
 
         #time.sleep(3)
         # Refresh browser to show updates immediately
-        if refresh_browser:
-            RefreshBrowser()
+        print(f"Refreshing browser")
+        RefreshBrowser()
 
 def update_score(score: int) -> None:
     """
@@ -451,7 +451,8 @@ def RefreshBrowser():
     global _page
     if _page:
         try:
-            _page.reload(wait_until="load")
+            print("Refreshing browser")
+            _page.reload()
         except Exception as e:
             print(f"Warning: Could not refresh browser: {e}")
 

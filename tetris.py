@@ -249,7 +249,7 @@ class Tetris:
                 self.board[y + 5] = ["R", "R", "R", "R", ".", ".", "R", "R", "R", "R"]
                 self.board[y + 6] = ["."] * self.width
                 self.Render()
-                time.sleep(1.5)
+                time.sleep(0.5)
         self.board = [['.' for _ in range(self.width)] for _ in range(self.height)]
         self.Render()
 
@@ -282,8 +282,7 @@ class Tetris:
             print(' '.join(row))
         """
         if (previous_grid != []):
-            refresh_browser = self.tick_count % 2 == 0
-            update_grid(previous_grid, event_ids, render_board, refresh_browser)
+            update_grid(previous_grid, event_ids, render_board)
         previous_grid = render_board
         
     def tick_loop(self):
@@ -306,6 +305,8 @@ class Tetris:
             
             self.Tick()
             self.Render()
+            time.sleep(0.5)
+
         if self.gameOver:
             self.EndScreen()
     
