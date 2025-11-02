@@ -1,11 +1,8 @@
 import random
 import time
-import threading
-import sys
-import os
-from calendar_api import update_grid
+from calendar_api import init_joystick, update_grid, check_joystick
 
-event_ids = ['6ltdnn1013acdj3oftogk7vmks', 'np0q0imtuij6bj6iaj3n1u81ho', 'g5h6k13mod5kap9g04a2jmnmo8', '59q9dirngeevf1li0tsn5sn8m8', 'g9lk1g34449bonmgipds55lk1g', 'pcu7ahteta9isg1evb77kinvoo', 'kjq0str03iqarppnf067vgndd0', '6jobrnch65m5m9h74haqvj15vk', 'jcjv8g3qm0hag51t96hq571bok', 'l3iqlia2q3hanjvejbkj49c284', '4jc864mlbgfb5oec3fm7sda2m0', 'sdgbmu1st7fcs688vfiedj37g4', 'upirk7k8tr8fr3uc0026vcr0f0', '4fu4crqadkh3eagnu18ovgrpec', 'grr535dhkg6nba5j063k0u1pq8', '6la3ki3pfh5jk34ms42a3k9p2c', '6eqbob5f9pdjlomrfdh1cd820g', '3ud212dfgc6rc2ubokv22g7ag8', 'hj0sttb0h7m8mkt5oni8a2rpqs', '4rrmtkhpsfojlo2ji5d6vqglog', '0unifn3d4s2skh6rtqs4anuhto', '67vfkcnhf3gtialkqq0holg3cg', 'r2l77o5fqjuqitjlcnvrpcs9sc', 'p1gdtd0jg17c6dqlk9o03rbrc0', '6hm30u6lhmgkk0v38ekd2kj1nc', '9gcm0rvu3ueus0s8gl56p8sono', 'm8olqrt62lasthm8anj1fb0lmo', 'gfu0nolscf8n9b87c652pfe560', 'e1lahe8982eqitac28l1a33mbc', '4n5es9bunqdi58b14h06j32n4o', 'nckb3cjf73ct9js4t47l2lcjvg', 'u8r24vc6lse4dvj9umqlcgjln4', 'ot3s2ci0ol0l2s92fihie3u56s', 'd1nhskrabsu5nddam27kbrl1ps', 'tue6hgquemhuirav2g4a4r093k', 'l9qfglhkqcivbjo4qospju54dg', 'b65ntqfeldqogqjf15qua22ng4', 'fp912c13i3f83k6ttuit40b604', 'am2flps2hopj5tb99fshepmcfs', '7ocu4jcma38khdf55m0th1rq74', 'bh2if012p15kn895f3vgqrdils', '1dak83vt70tbs7o0qcp0qr6tc8', 'itja81bs07k1j74f84e5uc28co', '7bc046fgemm04l56898bmdj33c', '53nv58hc2dl5tile3594ujgr8k', 'tum8bi0jee6d8dnd93oknuqgs0', 'a9ng5q1oqhq3e2m5a80e9a53r4', 'ehjplats1m5alaciij4rkaa84c', 'goj31lgvnt27ccj7is22egraic', 'vohv2b6cujjk8tqjj3pf4kp57s', 'blivpgcta3g020pb5eoc8minno', '2vpctoa2sqsmqimjtitm4s74l4', '2vokcsr3be1ok5e0qadk019ivc', '3khbmv6v17akqcjse0tjekt3u8', '636u8teecuqohopfp7hsu2i5fk', '8a3omepc8c7n350mq4k8b55mak', 'gqmi1anvguju1k7006jatts2cc', 'ok0h7m208f1dktdoq82iec0qdc', 've05m9bbn8uq1oj9rr0cmkdvbc', '2goiei85trvjle4s4pne1jmmn4', 'csvm45qpq9e8rcfi2uf41s6brg', 'e8g93q8rg386ds2dd5ibapdvq0', 'nfrpeo3u8rts8okbkht78svjf8', '19r0dkld31n5313lsm2h3s4lak', 'uivp0k1ln7m0mrvofane65koac', '8g45563vifqot8r7rmlaqju0ls', 'i0qrdhmtcro3949m7agi9292v4', '06ne0cbib39h8v2bo6b545pj9k', 'm2d56cljqd11rjglvbupa01l3c', 'j7k7439aa79hf7pcnpapb886t4', 'meugtdevu7svr1ks89u953car8', 'sl99mf3uq0hueb416e90paoc4o', 'kv5lj7p4le3egfsn85sj81o9vk', '453dbgjern4e2jcad27hq9ujsc', 'r8alsivfn5ehov6729hbeljsr4', 'keair2uas190njl5fruoehus24', 'a93l2m2jc2p1t3ch3esui6638o', '0ocrjvciv6a6ang2ui67ntgs24', '922ko4q9u37jfk98cfkia3231o', '72709sgreu7fvscud029vul0ps', '8utpbbh12csfg1934hhe19ahqo', 'i4kq6tn1k9f39lbnmmmo8s0k7k', 'bj04tqiqateb0v0hdv79ghqk10', 'jkqe13lrhk5dinjc5m0jh85vf8', '5tiqc0j9ogfvqrrkb1l2dmat48', 'o0dntth8j8ibd4pmi0vqfka0s0', '9205b7lgmrbise1hllk5equ6j4', 'j7m9leno3dhhhmr0hqduo3ds4k', '002d51k6qgekh3m8ahfmbasdt4', 'q81128s0ooknctrs3epndqf100', 'ue6ihfnpa68bqcs6fjm3ljsha4', 'f57b0lvl4ar1rfik9mtbarhcls', 'utg67k1bsfq1vkhfoqe44gin54', 'nemurpdk1p9osioom5r5nlsv78', 'vcu1hgddkmasrl0h9lfe0tnseo', 'e7v6dv8po43vpr8anisvhe44fk', 'l3gicoted3gs04gkg0u4345t3o', 'm52677bdvc7tvi85jtnv2cjet4', 'qhkq9nj987g0qipim1i8gkn92k', 'lv7rroltd8cq1hl09oi25efo40', '6vjl2335pcfhh3poaii27c503s', '5rn4jus605l0ev3t76t9pqq8pg', 'g1ps80ki4h5vo6gfihevec804s', 'h50pjhiqdruld556elbv5mhgkg', 'ie26o6k2c93fek2fcdd35macm4', 'gihrflar07cmkurmtcb4j1o0rc', '63rdr83068ud6u14qobr5687ig', '5t1b1ml9djht8smus0aeb8bfjs', 'gdddngi87eri75ntqa1u9ef068', 'uec36g7r4n87at2ejcimvocm7s', 'ppd6rrjrt6b5osqkitj08qj87g', '7hc4siecib3kcj5jsoruo04s2k', 'jb65bdlefrnf2hmr7jc1loj3eg', 'nfvf6snsvnbjv2cesbjfe04ees', 'hfj94ap20e3f48h3p1v4fduopc', 's4uf04mljemccck5b9gnv78evc', '59mh0oal62htmn665djcvhu9mg', 'moont4e6tbd4sjpf7afo8s3oq4', 'et5fclburuudnq7g20nq4v7ld8', '27vfa9d24tp9stuk2r80qicuog', '77qj870795qv4j7qmo7ffg6ib0', 'gg4j2lsbg5ilkqrtpb5q9cmb68', 'hjd868dhfr86h6plcnprtdp8ic', 'glt232ki6c0li7jfn23nrvi35s', '3d3gqqbvemiq9fdndbsirlhrv0', '3r3pe34pnr0tglghg7h5l994ug', 'dferk10c9mova6me5ouh50c3a0', 'r95ken9cd2lhmmtt71tflc63qk', 'gg41a5gtvi0nqh49o4ha81ekmk', 'p4hltprehjj4fbkgsrm2elfvug', 'p2qetgndh32u56cj85i5h2orl0', 'pa08o9cnkkv5f4j5p5ntkjsu9c', '9v1j0g704osv0h3m4h6duv2duo', 'q5u9ttc2nhfk9pchjet1n71dlo', 'h888pn3qjv8chjoucuajag6bho', 'v8iaquecqnm79105rpiqtkg6b4', 'upcf7t61pd9vilc2e29kvll5ig', '7jts1ujgt18ugoto9b6i6nrt9k', '04mpfo1uk62pabi7tdb3uuov9o', 'coma39lcbqu69s56lokaet0s0c', 'j6ekvgqqtbivifi9m8ruru8e04', '841g7lm3g7sn0e76tjvaos50ps', 'jj75il2a784ba5jpntlj5uj8tk', 'h5eu08g3i4bpsdrblke2ftjqvg', 'llumd7j1l3736ffekk33986flo', 'hlc15931a04beqemf730edv06g', 'ekpp5v7e51mmakla1v8qfb811k', 'edrican5133bsruuvp0l6o0ork', '541cehvs38gaereqg1ghao365o', 'russb78rj3gjaai5g35bdcnev8', '8k83mkasi53fufsjikejbc6evs', '2k64kgqf0a9c8n2b8qgd2pci7c', 'pc1ljid764q75fhsthe3ogu71k', '9hkbhqgm1dt9p9ttdsc8hvvo30', 'r1itlnc9jl23i220doupjqf62o', 'hckjj0s4ora495off1ftar7ktg', 'ceclejuvtjefsnktu86gcc4fd4', 'hf30bu724ioi4kqr1j0tvds4us', '1gjlb2lh6eq33q230ooh333rug', 'q8kpqlacspg21lrlrk3r7eb4jo', 'jj6ddb65mnncoruab6cg10setk', 'ua5kfshkbn884o5idsbtkd30dc', '3sbamc5gav1f8vik6afv8ncfmo', '3lu9q8naqu8mb4q6ph274a59u0', 'idbcu78u0j9fku4vdoq8rr09ec', 'dji0vqgosc1srqq2d1q8h6574k', 'a0lnqf0rt7ikp2nq47i2kam7o8', '7fnq905dg91kuqt5rj2l21l6d0', 'euvut6egig6nurnkklppp16lqk', '1223fbtrg3injh1hlff6rbdot0', 'n96190ni76elhqvk8sm454drc8', 'ps9p27a72kpa44bg75q3qksndg', 'maarr089qtnheflgk2js1hcn4g', 'o4av2tlqpoloolhi40g6i8p8po', 'dgb451cft8011dva43df5oq7g8', 'ggmfjijqhd5f7g39rmrkj55vt8', 'u1ikc5ofhs2u9odp4029j8ssro', '52ferbampfbsk676hs3l3gi5e4', 'vu87tduo71n86mkj86d3ufmtvo', 'fvetrhpi6dvcegn5ktdoi544ng', 'teifk1218ce114fpj582c0ql6o', '1ndbpto4rjk1qpt30g9sf5lbu4', 'tlotnb8vcfkpq69i06r5mdnjuk', 'mfts1lflvjrfp3a39cn58qbsgc', '61gp2ppt5cp5gr6k0f4tc5m4n0', 'd6r4s7l78o0uki50u0b0a9v6vo', 'l2v9r94c85rkalt0htubq9an4o', 'l09rctocpiqpqffo77j8pa4jvc', '5or5jevgpvgbphjkn2pe5u2248', 'lmgikkq0unogcvqa0a2av5d4k4', '6hkbiejcplncnl1m9ofcvdh830', '4cs978c56ntv4udv3vj599vlr8', 'tumue8n16ibecabu5qv9p5gjlg', 'rfdcjo5qnpcqi4s9dcsh3jf8n4', 'n2qtincia2cs8a934d6iidrlc0', 'lebkq61mh38o5016os4mija770', 'avreq57stgld20tfe35od1j7c4', 'aq6f34v6p37sghg476jnakfu58', 'ib6e2vlf0vh2l7g6huqt6kcmug', '79l3fji0772nl77h8mduo91ivs', '9g1ngaq64vpsponam3jcbhk4mc', 'uhlrcmud7ukf87fcbhsg6dtddg', 'a17271nhfntqss0gths8moucl4', 'j2u5ob1kuj0oolnp6p0tjocb6o', 'tabnp2cgrkb9ggjf8uv2n72tks', '6l9hp6dop6n5g13s4tol9l55k0', 'ijsu0jt7bq67lobuta29pladhs', 's5vah2ne9agf1n7qc5p7tc9104', 'jsad17bqhaou5n9unharsq8bo0', '6btrvmablkkes9c1dr0nfsv5k0', 'lup8bh1er0shgs1pe3iu50kpro', 'nbq0vb2nsl1l02ingpj9f7r28c', '5okp0ruqso9pdcct19q4p94mio', 'i566l4eda67rl4s6hv50fu7j7g', 'dvue3hstseu839ilq1n12ss4d0', '369ij3hrqpp8o2lujl2190pps0', '1b2ke38ru41qgcbrj89ci2prqs', 'qe3ikeomp7hpig31ssll6v9ctg', '7b44gtkj4kk91jq1t41337sj3s', 'enn2b8718uupr09fouuu53ligk', '4gr7udfsvq10har58souv00h8s', 'o1r6pc71mgfb7av672voh0jtc0', 'rttkrbgblreltb56a3e9a4m3uo', 'bms9liujvut5j2eovjs4tf6g1g', 'nijk6gbmss0kp171m46ucg1av8', 'vrbm5kli3l14jcf305c96lacos', 'ljj49j34dvlcfcudtetmtifa9s', 's87nj0952g35eb0tf027u12n7o', 'b1amvaj484vhvul0an0kicq1kg', 'm2qmu7rik08738a55ccd22m9tk', 'rhug5ueftrr0afb3aehjo87r8g', 'j020it0fj76pos3khtjbmnb1ug', 'g4qnnhqejrq2un8vj10karkvco', 'p3gk23ml1oqnh9ho0d4r131qvc', 'ots8cjbuna8er82jaa40lnnjbs', 'l5gtpi4dda8e46hr6llt7f7m4c', 's01ig76cgn0qp3c3rdtjnri4c8', 'hqli3vomkc4q1525rqaaq2s3n4', 'apov091hsvvaea149f3phk933g', 'ms64v5ml0ansr00nf1rl70saao']
+event_ids = ['75uog6gf6b5mn9vap4m9oeu344', '4a31fpf0cbi22h237or8681soo', 's8vgs0gpm0em51q094davfej3c', 'alahoc8ehu7ol9o6fair5c9sj8', '6r43cu624qvl00879lanplpk5o', '02kaabkfeat9e20lvf445nv1og', 'a17259hf3t8cmui0d5d9lc2jd0', '0ik548ad7gkuma9uuk90s7757c', 'lhmoo211nhpubf242d3htgqdp0', '4406bbdco2365qu75cd00natlc', 'n2n0ora2r07ke97sc7jvhonbjk', 'd03os3dkc359tfjs40olht583s', 'mn0a314sgkc2r5tnfo3fltrgbg', '2123i5s6o24vjoueonq26j1e6k', 'cgg05i1krvdsji38o28a43mjn8', 'i4bmtsrl7net8mahj6pjgaidk0', 'dd9ilgtm4bc48l80k8jrebdqa8', '2r82d497dhfebqfpf7mcdlcfag', 'lj4rg6e38sra8dl3q8ope1t7kg', 'qn5pfbsnh1igh1bjh388mr5l28', '9dtnboko0k1at487s574aoga0c', 'qjj1972vgbqm7plvavd4du1egk', '2l7b9te96nhjdfg47cl2p225is', '2a0tbfat2i6m1ddnvie5qdd2e8', 'er4nuf9au78sn3rptc61baov30', 'junic5kgpdm7g2d8ppfmrd2934', '1cnjgd5pk2789jd3ktj4iuvg28', '96p3oh41jcp165klfuhaaak93k', 'ns37ia900mcbghm4l49osbt4rs', '7q6p19hu579t0gb5n6ou6l6t1k', 'ef1d4oofri3a6v6anqjtk87omk', '17t8lla9frhj14hihnjn89mk40', 'dsq0dhg6dp89p3h8chgeo4ida0', 'fufpeflh6d9vq6pe1aj5shbk90', '16hckutu6q0ct226c636qpfja8', 'nqsj1ffkcg04dhr79o47ha4ecs', 'nhsm3m1mocnno5gqujrqedsfi8', 'p7guc13ke3huu3qq3o3a33g4ik', 'oh2ovuabj5d6ohdodu4u2kk2so', 'uq5qn0pit59gfq33ddhgvsp2ck', 'll283k34tk9siiiomknrvtqa74', 'cjk3rnjlrf29bcc5qadhgg0ju4', '30jafcper7ig6e6m8if6rb05i0', 'qan0ecf62288or795br7b44pjc', 'ipfkpo74gqe13veu4kg3agoink', 'nk0o861peddkasdhcompcbi7go', 'ujh9fqvigf7ijmc3sv426q816k', 'n5r6qolfhnnv8kfo8cq449nb3c', 'r5cdbkqbhlr2uh6nmhettjo4v0', 'eu2r7v8pcsd0ub2463njqurn3c', 'hqhlnulspji61u3dahl7ki6720', 'pv1q3eu349du9njgmnhn5td8tc', 'svnbsecr1tcpc9cs0bkql7i7dk', 'v35067nu3na3ucuk82uf18ins4', '6jhf193m93143jmiaqp2oc2404', 'vtel9278ofo21t5n8iuk4fesa8', 'vu5cj0for11njs3krl25oeupno', 'nh9bdrgn7ecdlloq8m3a21g06c', '43mruk6o0uffh91u3879e8hl7o', 'nhm631otqadre4dr2qm94oj4uk', 'uabojm8sqd9qo2vvq72h2uvfd4', 'i3otdj7la55rfh8cmk73gduur4', 'qguio83u24lfg0tj0bcg08ivrk', 'quhqhecm2pk0n4sl2dukb9o9ls', 'ch5i80h84gi0d0ja1ssm26b9cg', 'cge3qta3mt0id9cve012dtgc24', 'uhm1cm7jip67udg8bplo4cdf5k', 'rie7j5phc77ije8gvv3vklbu6k', 'j79si7c619atkib428h6or03u8', 'b62jap1ve80nttr64eusqrppc8', 'r1jglqdcmre8b0p23aeer2irkg', 'ulhcm5aiem4u83pvc8nvg3lhag', '4gfc1l8let6fd6d34tt0g2vcc0', 'iam4sb1tk6fq0a63b45ada9au0', 'l0d6i39shbj0a71gb3a6qg2ogg', '794s3ucm7jkncucbg73n7hd834', 'jugn8nliv3cmch5u60g8593604', 'vtm9kri34t6okclcba0q44srnk', '92dfajouec6r6devfbt09vdovk', '76707qjavpj1n22k9634i8tlts', 'h9teg661u6rd1eu229uf2ek9qs', '5lfcjk47kevfpqqrc1nat958ds', 'l90o8lnfg04fgldv5g7df7mm2c', 'qcamt3jfolehjsi8gfgkqstpsc', 'udpgvbv35sgm8i7h5s42v4d0j8', 'fa8rs7kqd49b2qgvv8n2ih2iqk', 'vkjul93l9si5arj5q49418tajk', 'csgc87dj3fk9mr8ebdeil2kn6o', 'lb197e1bqmg030h93nrb975avg', 'aeqqqsdc4kuqr63ircepkiphog', 'bseilfokdt3pkarhssngupccio', '02gq4vaao1ehen8b94ld27j4t0', 'gu83n8a26dn962100jp1atvfsc', '5u54nt75ganhh1hi6ioc8gmvv0', '35hvef1hemmj20ot025ful7i6c', 'u0gi50q5tt4ccuttpat9gamaes', '1ajaha53bjgcomah556at6h0ks', 'g5o71al50fcbtn066ki9r9le68', 'lgnhlu6t2m4dckbjji54c4b1ko', 'umuncnuorvkc9qrvoboj94frc8', 'h64bhnknejccjl1jcqk09isdtg', 'qlbfpamc6unijbms5j88k0omv8', 'hm4s0p671hh4u4uo6kbqciufpc', 'q5jva4q8f5ii2fkku7fs6407pc', '9erg19g7v8gflq5vuu99ab65fs', '9r77joummd2pb3gmv3shdlmqkc', 'mntiobleir9mg6260qin9sitgo', 'kkgcmegp3sa7vb773ej9c1degk', 'o1hn5ifqtt5u1ga35k0kkt6ras', 'et70moli4chjekgnae5t0vi1e8', 'tssnockkg023t8fs7ljvev7ji0', 'avd55uf55qrce2ve4thu9hpkbg', 'h9lk6s4al3mblm9sne7shqhidg', 'et9jejs9tl0ab7jo31v5gcpvm0', 'mbree4sfakr0b00ddbjtgol2qk', 'rnug613c1fdruv4odeqllladmo', '1udau7qg5582lta6ks6c4ddf70', '733touhdvsighgns15mfpfutak', '8np1ktkjd48rb0a0dvcs7bnogk', 'mn8if867sm8ll8cd07ugsmv2vc', 'lt612bmavmihrnloe0dtjagf5s', 'mb1rphbdnlbtfisabv04m49o68', '345lm8m0cohvst5nrsb6sc64nk', 'bhovhouhephfp7ht32c2j570g4', '8ne3n7uh08orfq4gpc427hhmvs', 'bn1hcnp7i2f9i1saqctl60e3lo', '637lqqdaubc45knv50l8s00klg', 'smsb0qqkic3pn8hv06dbbb44fo', 'r77phchnaq5kl9v1q2avibubf8', '8lh1h8ka5ptc9chlo2vuovirhg', '5ap23o4dv3ju3vpatkkiqe2sm0', 'bva348e6v8fuhkd2b7gl0getvk', 'vnqmrkgpfn00acqorcl41i3kb4', 'stmh0nt3u5i3esphhdq800tngo', '1vg77a5bk132b52fsf0m5rq96c', '7q4teeogs850nfliqukvcrk11c', '64toatgoqahuad6gs4v99igdtk', '0it8hlh4pkdl88111m6lkmjhu8', 'okgeurn2hljehpd8qoj94t3j8o', 'tl5dci76b4komtt30v8fs19m94', '6mi0grvf90udbkhafvg5vtt1ic', '0ae926dvc4ovddue3i6gtolki4', 'msra1lfc50it368m7lepugg81g', 'tdagvsp4thqgkauktqnucfbjgg', 'apdho71nq7agt8n9dt9vthg1v4', 'l49thak4mj31dkvgi38i40go94', 'l2ui4548riufa1e3655elv2i1s', 'fgn7a5ptf9i5bk3is2d9i6qroo', '98gdprqaurrgvjc58erbv88ens', 'cs6adnpusqkdj9ptb31cirm6b0', 'p1889g8d2ucbdf09fdid96fbk0', 'p5nefnurp0fubhgbltv3gpi8bs', '57080cfoh1mqoqiabke1uujk3g', 't7uaslch3t9hlagfnlju0s3o78', 'enfvmfgk2hbgvduju8b26ve62s', '5921o9pk8mn48g5fd6kd95lrpo', '6iof977turlb043pjl4uslarhk', 'q1ugp3q33jj5eldql00r17namk', 'ckd448l8cvk54ijeojkovblbos', 'l8e3h3i26j1b1cpjb9kitvad3c', '7ibnb06p96a227ldqgno7e71p8', '2st022ue2e7lh32hp5m9ln0j5s', '78fji0e7dti2itplmbkdtmq1v4', 'uc0cjjdn4l9l4i2t3ol27dcl48', 'a16s5fjsfoml4tetohnurucukk', 'pqn3u2445vdht83n5qg0abq7vc', '4c31j2ijn5i6v62fpk9qii3ud0', '5ldujlrvgbtv3jcqfopvcg99rs', 'gpjsekjh3o47f8ioi0p31gegf8', 'qt5i7c5bjrsb9tm3impugpspfg', '5n5pcl1olh4qe74ti89jc7st4o', 'odo6pdap9j6uqj6t8uek6trbvo', 'v6mcq1kfu28n1ur7ko0t7cn3ug', 'si1g379vua3525nbo4vieiprgk', 'ng3gkl2682ss3tshkdetdhf63c', '073d859pj2s6o9qcl1jpnm5kpc', 'f3ov26hgv934jf5gd4up2snn4g', 'urc8947ckg536ipt57n1uk8nsg', 'bqlqcubcjqiubas1bduha8qabs', 'ug3b3r48ef2pgf5prfr6kpi3fg', 'pcjua6oklbbqhje54nnpjdffcg', 'tenbjr5dm553agecr862oubjgc', 'tiiflgk70356m2ckc19o3amcqo', '9kftr5hnjj51h3ap35fvhvd6ms', 's9f11911b00v463qkq748tvvag', '8jrtqtj184v96gevguc4cd2tc8', '1gcp7a2ncc2ltj6qio13v6n2n8', 'd9qch66ods1gkrigtk8e283c7g', 'rh5qtaie47icpjcpp9svjrc0rk', '7bdcrr58b9hecst71b06utlnm4', 'tqbgejgi29khgmp2c2o4f65pb4', 'm2ft00dtb61ohvqr9t4tjp5m60', '6bp5s6dmon1da4bllt9ptlgpak', 'vpihekdtng1anbvka8nvj2dgc8', 'pgpcvn7vshnifkkbn2m85up954', 'tf1il50rvlbvn7ebcvbmvnbfa8', 'pfkbc6do0mrv0s0ivr0bj5lis4', 'rb5vrrpnlga8d6q5v0uvt41irg', 'u4tofrm1n7nu4e5rjjb8uluq68', 'ceqs6nqf3idqf2nlerspk2sp8g', '7cdbs24uffn5asleus8f9iuiv4', 'c9s7e3b83pnep1aq2dp196qjvg', 'lte287abta55eq3ehvtd55rj0o', 'g3fma2oo18i15d31c9l0gfmtq0', 'heqab28gbtslgb6hhet348a5p8', 'mub71mlhsm9buoudodc5rjfu40', 'gsb7o93i8ahm197p6ca7mpi990', '4p5f1027lb2cjath4k2dace99k', 'vck3hq4hn5ip92k08ocq6cual8', 'v4mod527t0o624eq09j5t32na0', 'ohice6pa9gi2gka2juhesnh0ho', 'lm0icofbt1fmh356iepovm3mr8', '7ggsrta8ikog2o7soock3o7i38', '14q5n5le38flffrgp91gb4cm5s', '3nf5q7qql822d3lrhusirsadtg', 'r0anfgb25p5ci12uohs792i0ck', '0lu4nvvbd026jhbi49dlas93hk', '52vbl7q58v3kd64lh7qik9mq04', 'p8t33jrdsmerqg9jo7mdc842gg', 'ue0dga3gt7fohm7h7peagc07uc', 'buru7keb98idija6cdv4madme8', '3qjv7o1hjvhed1prg975icgrvg', 'kqfd4aqvadoidmoevrqq1mgf10', 'vfu60m76l5rvk4ho3h93fcf3c4', 'hijqhd7n4scjg52iqa9ip2rmao', '485e137gjjl24el8l5nm4lla2c', 'sq5ssp2moa6rbvm9i2so2dkc54', '5b68jqlu3tt9ce149377791h8s', 'mj7uec5bs3jg81lqmijl5f9t30', 'vsgurbjjguqnsiuujcf0420jgk', 'svnbup99t7atjh23rgc0opnvjg', 'aec3ciuhmus3qeaufk64bokj00', 'a9prkks18t9bnmdob8nqqs765g', '876pb7chlhi8o8dpe2jllqfdn4', 'iii73j9erpdjaurfajjandgrg8', 'ubn6fn2n1nfg567bnqja2u2bmg', 'b2aeld27alej7un3or3r2bn6cs', 'hdmmm6uv45ppf96cgo5dqr6ilo', '6q16fhjrpf3fdsustllcfku24k', 'p5lrh80p65dkmje3bhdi4r4l7o']
 
 previous_grid = []
 
@@ -252,7 +249,19 @@ class Tetris:
     def tick_loop(self):
         """Runs the game tick every second, independent of input"""
         while not self.gameOver:
-            time.sleep(3)  # tick every 1 second
+            # Check joystick input
+            joystick_input = check_joystick()
+            if joystick_input != 0:
+                init_joystick()
+            if joystick_input == 1:  # Left
+                self.TryMove(-1, 0)
+            elif joystick_input == 2:  # Right
+                self.TryMove(1, 0)
+            elif joystick_input == 3:  # Up
+                self.TryRotate()
+            elif joystick_input == 4:  # Down
+                self.TryMove(0, 1)
+            
             self.Tick()
             self.Render()
 
@@ -260,58 +269,10 @@ class Tetris:
 
 def main():
     """Main game loop"""
-
-    if os.name == 'nt':
-        import msvcrt
-
-        def GetChar():
-            """Gets a single character from stdin without Enter (Windows)"""
-            ch = msvcrt.getch()
-            # Decode bytes to string if necessary (Python 3)
-            if isinstance(ch, bytes):
-                ch = ch.decode('utf-8', errors='ignore')
-            return ch
-
-    else:
-        import termios
-        import tty
-
-        def GetChar():
-            """Gets a single character from stdin without Enter (Unix)"""
-            fd = sys.stdin.fileno()
-            old_settings = termios.tcgetattr(fd)
-            try:
-                tty.setraw(fd)
-                ch = sys.stdin.read(1)
-            finally:
-                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-            return ch
-
-    
     game = Tetris()
-
-    tick_thread = threading.Thread(target= game.tick_loop, daemon=True)
-    tick_thread.start()
     
-    while not game.gameOver:
-        print("\nNext move (a/d/s/w/q): ", end=' ', flush=True)
-        move = GetChar().lower()
-        print(move)  # Echo input
-
-        if move == 'q':
-            print("\nQuitting game...")
-            break
-        elif move == 'a':
-            game.TryMove(-1, 0)
-        elif move == 'd':
-            game.TryMove(1, 0)
-        elif move == 's':
-            game.TryMove(0, 1)
-        elif move == 'w':
-            game.TryRotate()
-
-    # Stop ticking thread
-    tick_thread.join(timeout=1)
+    # Just run the tick loop directly - it now handles joystick input
+    game.tick_loop()
 
 
 if __name__ == "__main__":

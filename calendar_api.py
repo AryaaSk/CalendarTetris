@@ -66,8 +66,8 @@ def init_gui() -> None:
     global calendar_id
     service = get_service()
     #calendar_id = init_new_calendar()
-    calendar_id = "8973e281e7d39af544b067e47c56a3f270ee83d9b98222a883179df552795499@group.calendar.google.com"
-    print(f"Calendar ID: {calendar_id}")
+    calendar_id = "379c25c61237b265b27f1061aec64b4cee248423f75d282b0457de85eeb1d290@group.calendar.google.com"
+    #print(f"Calendar ID: {calendar_id}")
     init_joystick()
 
 
