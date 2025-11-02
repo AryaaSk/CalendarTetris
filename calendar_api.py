@@ -7,7 +7,6 @@ from googleapiclient.discovery import build, Resource
 from googleapiclient.errors import HttpError
 from googleapiclient.http import BatchHttpRequest
 import os
-from playwright.sync_api import sync_playwright
 
 # This module requires credentials.json to be in the same directory.
 
@@ -16,6 +15,14 @@ SCOPES = ["https://www.googleapis.com/auth/calendar.app.created"]
 # Browser control variables
 _browser_context = None
 _page = None
+_playwright_available = False
+
+# Try to import playwright
+try:
+    from playwright.sync_api import sync_playwright
+    _playwright_available = True
+except ImportError:
+    pass
 
 # Map color codes to Google Calendar color IDs
 COLOR_MAP = {
@@ -303,7 +310,11 @@ def InitBrowser():
     On Linux: google-chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
     On Windows: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\\Temp\\chrome-debug"
     """
-    global _browser_context, _page
+    global _browser_context, _page, _playwright_available
+    if not _playwright_available:
+        print("Info: Playwright not installed. Browser refresh disabled.")
+        return
+    
     try:
         playwright = sync_playwright().start()
         
@@ -317,8 +328,6 @@ def InitBrowser():
             print("Connected to existing Chrome browser")
         else:
             print("Warning: No browser contexts found")
-    except ImportError:
-        print("Warning: Playwright not installed. Browser refresh disabled.")
     except Exception as e:
         print(f"Warning: Could not connect to browser: {e}")
 
@@ -334,4 +343,6 @@ def RefreshBrowser():
         except Exception as e:
             print(f"Warning: Could not refresh browser: {e}")
 
-init_gui(False)
+init_gui(True)
+
+#use True to create new calendar, False to use existing calendar; true will also save calendar id and event ids to text files
